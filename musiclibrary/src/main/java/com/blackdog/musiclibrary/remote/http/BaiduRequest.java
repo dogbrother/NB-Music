@@ -98,46 +98,8 @@ public class BaiduRequest implements BaseRequest {
                     for (int i = 0; i < songList.length(); i++) {
                         JSONObject song = songList.getJSONObject(i);
                         SongInfo music = new SongInfo();
-                        music.setSongId(song.optString("song_id"))
-                                .setSongName(song.optString("title"))
-                                .setArtist(song.optString("author"));
+                        requestSongDetailInfo(music);
                         musics.add(music);
-                    }
-
-                    for (SongInfo music : musics) {
-                        StringBuilder urlBuilder = new StringBuilder();
-                        urlBuilder.append("http://music.baidu.com/data/music/links?")
-                                .append("songIds=").append(music.getSongId());
-                        String url = urlBuilder.toString();
-                        OkHttpClient client = new OkHttpClient();
-                        final Request request = new Request.Builder()
-                                .url(url)
-                                .get()
-                                .header("referer", String.format("http://music.baidu.com/song/%s", music.getSongId()))
-                                .build();
-                        Response detialReponse = client.newCall(request).execute();
-                        if (!detialReponse.isSuccessful()) {
-                            Log.i(TAG, "detail reponse is not successful");
-                            continue;
-                        }
-                        ResponseBody detailResultBody = detialReponse.body();
-                        if (detailResultBody == null) {
-                            continue;
-                        }
-                        String detailResult = detailResultBody.string();
-                        if (TextUtils.isEmpty(detailResult)) {
-                            continue;
-                        }
-                        JSONObject reponseJson = new JSONObject(detailResult);
-                        JSONArray songListArr = reponseJson.optJSONObject("data").optJSONArray("songList");
-                        if (songListArr.length() >= 1) {
-                            JSONObject songDetailJson = songListArr.getJSONObject(0);
-                            music.setSongUrl(songDetailJson.optString("songLink"))
-                                    .setSize(String.valueOf(songDetailJson.optLong("size")))
-                                    .setDuration(songDetailJson.optLong("time"))
-                                    .setArtist(songDetailJson.optString("artistName"))
-                                    .setVersions(songDetailJson.optString("version"));
-                        }
                     }
                     Message.obtain(mHandler, MSG_CALL_BACK_SUCC, musics).sendToTarget();
                 } catch (Exception e) {
@@ -146,6 +108,43 @@ public class BaiduRequest implements BaseRequest {
                 }
             }
         });
+    }
+
+
+    private void requestSongDetailInfo(SongInfo music) throws Exception {
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("http://music.baidu.com/data/music/links?")
+                .append("songIds=").append(music.getSongId());
+        String url = urlBuilder.toString();
+        OkHttpClient client = new OkHttpClient();
+        final Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .header("referer", String.format("http://music.baidu.com/song/%s", music.getSongId()))
+                .build();
+        Response detialReponse = client.newCall(request).execute();
+        if (!detialReponse.isSuccessful()) {
+            return;
+        }
+        ResponseBody detailResultBody = detialReponse.body();
+        if (detailResultBody == null) {
+            return;
+        }
+        String detailResult = detailResultBody.string();
+        if (TextUtils.isEmpty(detailResult)) {
+            return;
+        }
+        JSONObject reponseJson = new JSONObject(detailResult);
+        JSONArray songListArr = reponseJson.optJSONObject("data").optJSONArray("songList");
+        if (songListArr.length() >= 1) {
+            JSONObject songDetailJson = songListArr.getJSONObject(0);
+            music.setSongUrl(songDetailJson.optString("songLink"))
+                    .setSongName(songDetailJson.optString("songName"))
+                    .setSize(String.valueOf(songDetailJson.optLong("size")))
+                    .setDuration(songDetailJson.optLong("time"))
+                    .setArtist(songDetailJson.optString("artistName"))
+                    .setVersions(songDetailJson.optString("version"));
+        }
     }
 
 
