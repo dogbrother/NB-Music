@@ -1,4 +1,4 @@
-package com.blackdog.musiclibrary.http;
+package com.blackdog.musiclibrary.remote.http;
 
 import android.os.Handler;
 import android.os.Looper;

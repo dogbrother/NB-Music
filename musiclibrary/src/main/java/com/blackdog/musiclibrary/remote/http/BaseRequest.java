@@ -1,4 +1,4 @@
-package com.blackdog.musiclibrary.http;
+package com.blackdog.musiclibrary.remote.http;
 
 import com.lzx.starrysky.model.SongInfo;
 

@@ -6,12 +6,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.blackdog.musiclibrary.http.BaiduRequest;
-import com.blackdog.musiclibrary.http.BaseRequest;
+import com.blackdog.musiclibrary.remote.http.BaiduRequest;
+import com.blackdog.musiclibrary.remote.http.BaseRequest;
 import com.lzx.starrysky.manager.MediaSessionConnection;
 import com.lzx.starrysky.manager.MusicManager;
 import com.lzx.starrysky.model.SongInfo;
