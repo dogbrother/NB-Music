@@ -1,1 +1,1 @@
-include ':app', ':starrysky', ':musiclibrary'
+include ':app', ':player', ':musiclibrary'

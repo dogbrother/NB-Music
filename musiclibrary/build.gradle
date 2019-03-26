@@ -26,6 +26,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.squareup.okhttp3:okhttp:3.1.2'
-    compile project(':starrysky')
+    compile project(':player')
 
 }
