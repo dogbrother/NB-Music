@@ -6,11 +6,13 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.blackdog.musiclibrary.remote.http.BaiduRequest;
 import com.blackdog.musiclibrary.remote.http.BaseRequest;
+import com.blackdog.musiclibrary.remote.http.KugouRequest;
 import com.lzx.starrysky.manager.MediaSessionConnection;
 import com.lzx.starrysky.manager.MusicManager;
 import com.lzx.starrysky.model.SongInfo;
@@ -38,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void searchSong(View view) {
         String songName = mEtSong.getText().toString();
-        new BaiduRequest().searchMusic(1, 5, songName, new BaseRequest.RequectCallBack() {
+        new KugouRequest().searchMusic(1, 5, songName, new BaseRequest.RequectCallBack() {
             @Override
             public void onSucc(final List<SongInfo> musics) {
                 MusicManager.getInstance().playMusicByInfo(musics.get(0));
