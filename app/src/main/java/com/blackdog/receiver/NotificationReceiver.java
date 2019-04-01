@@ -1,4 +1,4 @@
-package com.lzx.musiclib;
+package com.blackdog.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
+import com.blackdog.App;
 import com.lzx.starrysky.manager.MusicManager;
 
 public class NotificationReceiver extends BroadcastReceiver {

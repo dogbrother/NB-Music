@@ -1,4 +1,4 @@
-package com.blackdog.musiclibrary.remote.http;
+package com.blackdog.musiclibrary.remote.common;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -7,7 +7,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 
-import com.lzx.starrysky.model.SongInfo;
+import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
+import com.blackdog.musiclibrary.model.Song;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,7 +43,7 @@ public class BaiduRequest implements BaseRequest {
                     break;
                 case MSG_CALL_BACK_SUCC:
                     if (mRequectCallBack != null) {
-                        List<SongInfo> songInfos = (List<SongInfo>) msg.obj;
+                        List<Song> songInfos = (List<Song>) msg.obj;
                         mRequectCallBack.onSucc(songInfos);
                     }
                     break;
@@ -94,11 +95,13 @@ public class BaiduRequest implements BaseRequest {
                     }
                     JSONObject responseJson = new JSONObject(result);
                     JSONArray songList = responseJson.optJSONArray("song_list");
-                    final List<SongInfo> musics = new ArrayList<>();
+                    final List<Song> musics = new ArrayList<>();
                     for (int i = 0; i < songList.length(); i++) {
                         JSONObject song = songList.getJSONObject(i);
-                        SongInfo music = new SongInfo();
-                        requestSongDetailInfo(music);
+                        Song music = new Song();
+                        requestSongDetailInfo(music, song.optString("song_id"));
+                        SqlCenter.getInstance().getDaoSession().getSongDao().save(music);
+                        Log.i(TAG, "music_id : " + music.getId());
                         musics.add(music);
                     }
                     Message.obtain(mHandler, MSG_CALL_BACK_SUCC, musics).sendToTarget();
@@ -111,16 +114,16 @@ public class BaiduRequest implements BaseRequest {
     }
 
 
-    private void requestSongDetailInfo(SongInfo music) throws Exception {
+    private void requestSongDetailInfo(Song music, String songId) throws Exception {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("http://music.baidu.com/data/music/links?")
-                .append("songIds=").append(music.getSongId());
+                .append("songIds=").append(songId);
         String url = urlBuilder.toString();
         OkHttpClient client = new OkHttpClient();
         final Request request = new Request.Builder()
                 .url(url)
                 .get()
-                .header("referer", String.format("http://music.baidu.com/song/%s", music.getSongId()))
+                .header("referer", String.format("http://music.baidu.com/song/%s", music.getId()))
                 .build();
         Response detialReponse = client.newCall(request).execute();
         if (!detialReponse.isSuccessful()) {
@@ -138,12 +141,11 @@ public class BaiduRequest implements BaseRequest {
         JSONArray songListArr = reponseJson.optJSONObject("data").optJSONArray("songList");
         if (songListArr.length() >= 1) {
             JSONObject songDetailJson = songListArr.getJSONObject(0);
-            music.setSongUrl(songDetailJson.optString("songLink"))
+            music.setDownloadUrl(songDetailJson.optString("songLink"))
                     .setSongName(songDetailJson.optString("songName"))
                     .setSize(String.valueOf(songDetailJson.optLong("size")))
                     .setDuration(songDetailJson.optLong("time"))
-                    .setArtist(songDetailJson.optString("artistName"))
-                    .setVersions(songDetailJson.optString("version"));
+                    .setSinger(songDetailJson.optString("artistName"));
         }
     }
 

@@ -1,12 +1,12 @@
-package com.blackdog.musiclibrary.remote.http;
+package com.blackdog.musiclibrary.remote.common;
 
-import com.lzx.starrysky.model.SongInfo;
+import com.blackdog.musiclibrary.model.Song;
 
 import java.util.List;
 
 public interface BaseRequest {
     interface RequectCallBack {
-        void onSucc(List<SongInfo> music);
+        void onSucc(List<Song> music);
 
         void onError(String response);
     }

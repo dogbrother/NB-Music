@@ -1,4 +1,4 @@
-package com.blackdog.musiclibrary.remote.http;
+package com.blackdog.musiclibrary.remote.common;
 
 public interface FakeHeader {
 
@@ -21,6 +21,4 @@ public interface FakeHeader {
     }
 
     String IOS_USERAGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1";
-
-
 }

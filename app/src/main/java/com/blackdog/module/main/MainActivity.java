@@ -1,4 +1,4 @@
-package com.lzx.musiclib;
+package com.blackdog.module.main;
 
 
 import android.os.Bundle;
@@ -10,12 +10,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.blackdog.musiclibrary.remote.http.BaiduRequest;
-import com.blackdog.musiclibrary.remote.http.BaseRequest;
-import com.blackdog.musiclibrary.remote.http.KugouRequest;
+import com.blackdog.R;
+import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
+import com.blackdog.util.SongUtil;
+import com.blackdog.musiclibrary.model.Song;
+import com.blackdog.musiclibrary.remote.common.BaseRequest;
+import com.blackdog.musiclibrary.remote.common.KugouRequest;
 import com.lzx.starrysky.manager.MediaSessionConnection;
 import com.lzx.starrysky.manager.MusicManager;
-import com.lzx.starrysky.model.SongInfo;
 
 import java.util.List;
 
@@ -30,6 +32,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mEtSong = findViewById(R.id.et_song);
         MediaSessionConnection.getInstance().connect();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<Song> songs = SqlCenter.getInstance().getDaoSession().loadAll(Song.class);
+                for (Song song : songs) {
+                    Log.i(TAG, "id : " + song.getId());
+                    Log.i(TAG, "songUrl : " + song.getDownloadUrl());
+                }
+            }
+        }).start();
     }
 
     @Override
@@ -42,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         String songName = mEtSong.getText().toString();
         new KugouRequest().searchMusic(1, 5, songName, new BaseRequest.RequectCallBack() {
             @Override
-            public void onSucc(final List<SongInfo> musics) {
-                MusicManager.getInstance().playMusicByInfo(musics.get(0));
+            public void onSucc(final List<Song> musics) {
+                MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(musics.get(0)));
             }
 
             @Override

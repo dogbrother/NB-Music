@@ -1,13 +1,14 @@
-package com.blackdog.musiclibrary.remote.http;
+package com.blackdog.musiclibrary.remote.common;
 
-import android.nfc.cardemulation.HostApduService;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.lzx.starrysky.model.SongInfo;
+
+import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
+import com.blackdog.musiclibrary.model.Song;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,8 +43,8 @@ public class KugouRequest implements BaseRequest {
                     break;
                 case MSG_CALL_BACK_SUCC:
                     if (mRequectCallBack != null) {
-                        List<SongInfo> songInfos = (List<SongInfo>) msg.obj;
-                        mRequectCallBack.onSucc(songInfos);
+                        List<Song> songs = (List<Song>) msg.obj;
+                        mRequectCallBack.onSucc(songs);
                     }
                     break;
             }
@@ -70,7 +71,7 @@ public class KugouRequest implements BaseRequest {
         final Request request = new Request.Builder()
                 .url(url)
                 .get()
-                .header("referer", "http://music.baidu.com/")
+                .header("referer", "http://www.kugou.com")
                 .build();
         client.newCall(request)
                 .enqueue(new Callback() {
@@ -82,65 +83,72 @@ public class KugouRequest implements BaseRequest {
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
+                        ResponseBody responseBody = response.body();
+                        if (responseBody == null) {
+                            Message.obtain(mHandler, MSG_CALL_BACK_ERR, "request error").sendToTarget();
+                            return;
+                        }
+                        String result = responseBody.string();
+                        if (TextUtils.isEmpty(result)) {
+                            Message.obtain(mHandler, MSG_CALL_BACK_ERR, "request error").sendToTarget();
+                            return;
+                        }
+                        JSONObject responseJson;
                         try {
-                            ResponseBody responseBody = response.body();
-                            if (responseBody == null) {
-                                Message.obtain(mHandler, MSG_CALL_BACK_ERR, "request error").sendToTarget();
-                                return;
-                            }
-                            String result = responseBody.string();
-                            if (TextUtils.isEmpty(result)) {
-                                Message.obtain(mHandler, MSG_CALL_BACK_ERR, "request error").sendToTarget();
-                                return;
-                            }
-                            JSONObject responseJson = new JSONObject(result);
-                            int errorCode = responseJson.optInt("error_code");
-                            if (errorCode != 0) {
-                                Log.i(TAG, "errorCode : " + errorCode);
-                                onFailure(call, new IOException("errorCode is null"));
-                                return;
-                            }
-                            JSONArray songList = responseJson.optJSONObject("data").optJSONArray("lists");
-                            List<SongInfo> songInfos = new ArrayList<>();
-                            if (songList != null) {
-                                for (int i = 0; i < songList.length(); i++) {
-                                    JSONObject songInfoJson = songList.optJSONObject(i);
-                                    SongInfo songInfo = new SongInfo();
-                                    String hash = "";
-                                    do {
-                                        String sqFileHash = songInfoJson.optString("SQFileHash");
-                                        if (!TextUtils.isEmpty(sqFileHash) && !sqFileHash.equals("00000000000000000000000000000000")) {
-                                            hash = sqFileHash;
-                                            break;
-                                        }
-                                        String hqFileHash = songInfoJson.optString("HQFileHash");
-                                        if (!TextUtils.isEmpty(hqFileHash) && !hqFileHash.equals("00000000000000000000000000000000")) {
-                                            hash = hqFileHash;
-                                            break;
-                                        }
-                                        hash = songInfoJson.optString("FileHash");
-                                    } while (false);
-                                    songInfo.setSongName(songInfoJson.optString("SongName"))
-                                            .setDownloadUrl(hash);
-                                    requestSongDetail(songInfo);
-                                    songInfos.add(songInfo);
-                                }
-                            }
-                            Message.obtain(mHandler, MSG_CALL_BACK_SUCC, songInfos).sendToTarget();
+                            responseJson = new JSONObject(result);
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Message.obtain(mHandler, MSG_CALL_BACK_ERR, "baidu music parse error").sendToTarget();
+                            Message.obtain(mHandler, MSG_CALL_BACK_ERR, "request error").sendToTarget();
+                            return;
                         }
+                        int errorCode = responseJson.optInt("error_code");
+                        if (errorCode != 0) {
+                            Log.i(TAG, "errorCode : " + errorCode);
+                            onFailure(call, new IOException("errorCode is null"));
+                            return;
+                        }
+                        JSONArray songList = responseJson.optJSONObject("data").optJSONArray("lists");
+                        List<Song> songs = new ArrayList<>();
+                        if (songList != null) {
+                            for (int i = 0; i < songList.length(); i++) {
+                                JSONObject SongJson = songList.optJSONObject(i);
+                                Song song = new Song();
+                                String hash = "";
+                                do {
+                                    String sqFileHash = SongJson.optString("SQFileHash");
+                                    if (!TextUtils.isEmpty(sqFileHash) && !sqFileHash.equals("00000000000000000000000000000000")) {
+                                        hash = sqFileHash;
+                                        break;
+                                    }
+                                    String hqFileHash = SongJson.optString("HQFileHash");
+                                    if (!TextUtils.isEmpty(hqFileHash) && !hqFileHash.equals("00000000000000000000000000000000")) {
+                                        hash = hqFileHash;
+                                        break;
+                                    }
+                                    hash = SongJson.optString("FileHash");
+                                } while (false);
+                                song.setSongName(SongJson.optString("SongName"));
+                                try {
+                                    requestSongDetail(song, hash);
+                                    SqlCenter.getInstance().getDaoSession().getSongDao().insertOrReplace(song);
+                                    Log.i(TAG, "song id : " + song.getId());
+                                    songs.add(song);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        Message.obtain(mHandler, MSG_CALL_BACK_SUCC, songs).sendToTarget();
                     }
                 });
     }
 
 
-    private void requestSongDetail(SongInfo songInfo) throws Exception {
+    private void requestSongDetail(Song song, String hash) throws Exception {
         Request request = new Request.Builder()
                 .header("referer", "http://m.kugou.com")
                 .header("User-Agent", FakeHeader.IOS_USERAGENT)
-                .url("http://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=" + songInfo.getDownloadUrl())
+                .url("http://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=" + hash)
                 .build();
         OkHttpClient client = new OkHttpClient();
         client.newCall(request).execute();
@@ -160,10 +168,8 @@ public class KugouRequest implements BaseRequest {
         if (reponseJson.optInt("status") != 1) {
             throw new Exception("parse err");
         }
-        songInfo.setDownloadUrl(reponseJson.optString("url"))
-                .setSongUrl(reponseJson.optString("url"))
+        song.setDownloadUrl(reponseJson.optString("url"))
                 .setSize(reponseJson.optLong("fileSize") + "")
-                .setSongId(reponseJson.optLong("album_audio_id") + "")
-                .setArtist(reponseJson.optString("singerName"));
+                .setSinger(reponseJson.optString("singerName"));
     }
 }

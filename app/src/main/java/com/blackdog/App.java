@@ -1,10 +1,14 @@
-package com.lzx.musiclib;
+package com.blackdog;
 
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Environment;
+import android.support.multidex.MultiDex;
 
+import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
+import com.blackdog.receiver.NotificationReceiver;
+import com.blackdog.util.AppUtil;
 import com.lzx.starrysky.manager.MusicManager;
 import com.lzx.starrysky.notification.NotificationConstructor;
 import com.lzx.starrysky.playback.download.ExoDownload;
@@ -31,24 +35,23 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        MultiDex.install(this);
+        AppUtil.setApplication(this);
         //初始化
         MusicManager.initMusicManager(this);
         //配置通知栏
         NotificationConstructor constructor = new NotificationConstructor.Builder()
                 .setCreateSystemNotification(false)
-//                .setPlayOrPauseIntent(getPendingIntent(ACTION_PLAY_OR_PAUSE))
-//                .setNextIntent(getPendingIntent(ACTION_NEXT))
-//                .setPreIntent(getPendingIntent(ACTION_PRE))
-//                .setFavoriteIntent(getPendingIntent(ACTION_FAVORITE))
-//                .setLyricsIntent(getPendingIntent(ACTION_LYRICS))
                 .bulid();
 
         MusicManager.getInstance().setNotificationConstructor(constructor);
 
         //设置缓存
-        String destFileDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/11ExoCacheDir";
+        String destFileDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/nb-music";
         ExoDownload.getInstance().setOpenCache(true); //打开缓存开关
         ExoDownload.getInstance().setShowNotificationWhenDownload(true);
         ExoDownload.getInstance().setCacheDestFileDir(destFileDir); //设置缓存文件夹
+        //初始化数据库
+        SqlCenter.getInstance().init(this);
     }
 }
