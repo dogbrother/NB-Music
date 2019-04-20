@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.blackdog.R;
 import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
 import com.blackdog.musiclibrary.remote.baidu.request.BaiduRequest;
+import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.blackdog.musiclibrary.remote.kugou.request.KugouRequest;
 import com.blackdog.util.SongUtil;
 import com.blackdog.musiclibrary.model.Song;
@@ -53,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void searchSong(View view) {
         String songName = mEtSong.getText().toString();
-        new BaiduRequest().searchMusic(1, 5, songName, new BaseRequest.RequectCallBack() {
+        ChannelMusicFactory.getRequest(ChannelMusicFactory.CHANNEL_KUGOU).searchMusic(1, 5, songName, new BaseRequest.RequectCallBack() {
             @Override
             public void onSucc(final List<Song> musics) {
                 if (musics.size() > 0) {
                     MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(musics.get(0)));
-                }else{
+                } else {
                     showToast("no music");
                 }
             }
