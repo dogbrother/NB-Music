@@ -14,10 +14,9 @@ public class Song {
     private String size;
     private long duration;
 
-
     @Generated(hash = 1485647960)
     public Song(Long id, String songName, String singer, String downloadUrl,
-            String size, long duration) {
+                String size, long duration) {
         this.id = id;
         this.songName = songName;
         this.singer = singer;
@@ -29,7 +28,6 @@ public class Song {
     @Generated(hash = 87031450)
     public Song() {
     }
-    
 
     public Long getId() {
         return this.id;
@@ -38,7 +36,6 @@ public class Song {
     public Song setId(Long id) {
         this.id = id;
         return this;
-
     }
 
     public String getSongName() {
@@ -89,7 +86,6 @@ public class Song {
         this.duration = duration;
         return this;
     }
-
 
 
 }

@@ -3,8 +3,8 @@ package com.blackdog.musiclibrary.local.sqlite;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.blackdog.nbmusic.DaoMaster;
-import com.blackdog.nbmusic.DaoSession;
+import com.blackdog.greendao.DaoMaster;
+import com.blackdog.greendao.DaoSession;
 
 
 public class SqlCenter {

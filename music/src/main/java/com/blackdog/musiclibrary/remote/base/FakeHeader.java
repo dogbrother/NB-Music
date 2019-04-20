@@ -1,4 +1,4 @@
-package com.blackdog.musiclibrary.remote.common;
+package com.blackdog.musiclibrary.remote.base;
 
 public interface FakeHeader {
 

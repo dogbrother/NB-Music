@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Environment;
 import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
 import com.blackdog.receiver.NotificationReceiver;
@@ -18,7 +19,7 @@ import com.lzx.starrysky.playback.download.ExoDownload;
  * create by lzx
  * time:2018/11/9
  */
-public class App extends Application {
+public class App extends MultiDexApplication {
 
     public static String ACTION_PLAY_OR_PAUSE = "ACTION_PLAY_OR_PAUSE";
     public static String ACTION_NEXT = "ACTION_NEXT";

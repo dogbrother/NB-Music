@@ -12,10 +12,11 @@ import android.widget.Toast;
 
 import com.blackdog.R;
 import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
+import com.blackdog.musiclibrary.remote.baidu.request.BaiduRequest;
+import com.blackdog.musiclibrary.remote.kugou.request.KugouRequest;
 import com.blackdog.util.SongUtil;
 import com.blackdog.musiclibrary.model.Song;
-import com.blackdog.musiclibrary.remote.common.BaseRequest;
-import com.blackdog.musiclibrary.remote.common.KugouRequest;
+import com.blackdog.musiclibrary.remote.base.BaseRequest;
 import com.lzx.starrysky.manager.MediaSessionConnection;
 import com.lzx.starrysky.manager.MusicManager;
 
@@ -52,10 +53,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void searchSong(View view) {
         String songName = mEtSong.getText().toString();
-        new KugouRequest().searchMusic(1, 5, songName, new BaseRequest.RequectCallBack() {
+        new BaiduRequest().searchMusic(1, 5, songName, new BaseRequest.RequectCallBack() {
             @Override
             public void onSucc(final List<Song> musics) {
-                MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(musics.get(0)));
+                if (musics.size() > 0) {
+                    MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(musics.get(0)));
+                }else{
+                    showToast("no music");
+                }
             }
 
             @Override
