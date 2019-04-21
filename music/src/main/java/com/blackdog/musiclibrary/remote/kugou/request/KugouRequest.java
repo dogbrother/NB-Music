@@ -22,39 +22,12 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class KugouRequest implements BaseRequest {
+public class KugouRequest extends BaseRequest {
 
     private static final String TAG = "KugouRequest";
 
     @Override
-    public void searchMusic(int page, int count, String name, RequectCallBack callBack) {
-        searhMusicInternal(page, count, name, callBack);
-    }
-
-    private boolean requestSongDetail(KugouSong song) throws Exception {
-        KugouRequestInterface kugouRequestInterface = RETROFIT.create(KugouRequestInterface.class);
-
-        Call<ResponseBody> call = kugouRequestInterface.queryMusicDetail(song.getHash());
-        Response<ResponseBody> detialReponse = call.execute();
-        if (!detialReponse.isSuccessful()) {
-            return false;
-        }
-        ResponseBody detailResultBody = detialReponse.body();
-        String detailResult = detailResultBody.string();
-        if (TextUtils.isEmpty(detailResult)) {
-            return false;
-        }
-        JSONObject reponseJson = new JSONObject(detailResult);
-        if (reponseJson.optInt("status") != 1) {
-            return false;
-        }
-        song.setDownloadUrl(reponseJson.optString("url"))
-                .setSize(reponseJson.optLong("fileSize") + "")
-                .setSinger(reponseJson.optString("singerName"));
-        return true;
-    }
-
-    private void searhMusicInternal(int page, int count, String name, final RequectCallBack callBack) {
+    public void searchInternal(int page, int count, String name, final RequectCallBack callBack) {
         KugouRequestInterface kugouRequestInterface = RETROFIT.create(KugouRequestInterface.class);
         Observable<ResponseBody> observable = kugouRequestInterface.searchMusic(page, count, name);
         observable.subscribeOn(Schedulers.io())
@@ -98,6 +71,29 @@ public class KugouRequest implements BaseRequest {
                             callBack.onSucc(songs);
                     }
                 }).subscribe();
+    }
+
+    private boolean requestSongDetail(KugouSong song) throws Exception {
+        KugouRequestInterface kugouRequestInterface = RETROFIT.create(KugouRequestInterface.class);
+
+        Call<ResponseBody> call = kugouRequestInterface.queryMusicDetail(song.getHash());
+        Response<ResponseBody> detialReponse = call.execute();
+        if (!detialReponse.isSuccessful()) {
+            return false;
+        }
+        ResponseBody detailResultBody = detialReponse.body();
+        String detailResult = detailResultBody.string();
+        if (TextUtils.isEmpty(detailResult)) {
+            return false;
+        }
+        JSONObject reponseJson = new JSONObject(detailResult);
+        if (reponseJson.optInt("status") != 1) {
+            return false;
+        }
+        song.setDownloadUrl(reponseJson.optString("url"))
+                .setSize(reponseJson.optLong("fileSize") + "")
+                .setSinger(reponseJson.optString("singerName"));
+        return true;
     }
 
 

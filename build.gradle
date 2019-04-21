@@ -17,11 +17,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-//        maven { url "https://jitpack.io" }
-//        maven {
-//            url 'https://maven.google.com/'
-//            name 'Google'
-//        }
+        maven { url "https://jitpack.io" }
     }
     tasks.withType(JavaCompile) {    //设置全局编码
         options.encoding = "UTF-8"
@@ -37,7 +33,6 @@ allprojects {
         failOnError false
     }
 }
-
 
 
 task clean(type: Delete) {

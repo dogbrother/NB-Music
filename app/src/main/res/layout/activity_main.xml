@@ -4,15 +4,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.AppCompatEditText
-        android:id="@+id/et_song"
-        android:hint="请输入音乐名"
+    <!--<android.support.v7.widget.AppCompatEditText-->
+    <!--android:id="@+id/et_song"-->
+    <!--android:hint="请输入音乐名"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content" />-->
+    <!--<Button-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:text="搜索"-->
+    <!--android:onClick="searchSong"-->
+    <!--android:layout_height="wrap_content" />-->
+
+    <FrameLayout
+        android:id="@+id/layout_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:layout_width="match_parent"
-        android:text="搜索"
-        android:onClick="searchSong"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

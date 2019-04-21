@@ -34,5 +34,7 @@ android {
         compile 'com.android.support:multidex:1.0.3'
         compile project(':music')
         compile project(':player')
+        compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
+        compile 'com.android.support:recyclerview-v7:28.0.0'
     }
 }

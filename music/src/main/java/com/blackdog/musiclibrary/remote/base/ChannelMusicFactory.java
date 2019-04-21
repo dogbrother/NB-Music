@@ -15,11 +15,11 @@ public class ChannelMusicFactory {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({CHANNEL_BAIDU, CHANNEL_KUGOU})
-    @interface ChannelName {
+    public @interface Channel {
     }
 
 
-    public static BaseRequest getRequest(@ChannelName int channelId) {
+    public static BaseRequest getRequest(@Channel int channelId) {
         switch (channelId) {
             case CHANNEL_BAIDU:
                 return new BaiduRequest();

@@ -23,7 +23,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class BaiduRequest implements BaseRequest {
+public class BaiduRequest extends BaseRequest {
     private boolean requestSongDetailInfo(BaiduSong song) throws Exception {
         BaiduRequestInterface requestInterface = RETROFIT.create(BaiduRequestInterface.class);
         Call<ResponseBody> call = requestInterface.queryMusicDetail(song.getBaiduSongId());
@@ -51,7 +51,7 @@ public class BaiduRequest implements BaseRequest {
 
 
     @Override
-    public void searchMusic(int page, int count, String name, final RequectCallBack callBack) {
+    public void searchInternal(int page, int count, String name, final RequectCallBack callBack) {
         BaiduRequestInterface requestInterface = RETROFIT.create(BaiduRequestInterface.class);
         Observable<ResponseBody> observable = requestInterface.search(name, page, count);
         observable.subscribeOn(Schedulers.io())
