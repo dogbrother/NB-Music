@@ -1,4 +1,4 @@
-package com.blackdog.module.channel.base;
+package com.blackdog.module.channel;
 
 
 import android.content.Context;

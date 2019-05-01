@@ -4,19 +4,19 @@ package com.blackdog.module.main;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 
 import com.blackdog.R;
 
-import com.blackdog.module.channel.base.ChannelFragment;
+import com.blackdog.module.base.BaseActivity;
+import com.blackdog.module.channel.ChannelFragment;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.lzx.starrysky.manager.MediaSessionConnection;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends BaseActivity {
 
     private final String TAG = "MainActivity";
 

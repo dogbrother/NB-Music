@@ -1,4 +1,4 @@
-package com.blackdog.module.channel.base.adapter;
+package com.blackdog.module.channel.adapter;
 
 import android.support.annotation.Nullable;
 import android.text.TextUtils;

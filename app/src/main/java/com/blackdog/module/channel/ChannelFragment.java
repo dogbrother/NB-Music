@@ -1,8 +1,9 @@
-package com.blackdog.module.channel.base;
+package com.blackdog.module.channel;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.blackdog.R;
-import com.blackdog.module.channel.base.adapter.ChannelAdapter;
+import com.blackdog.module.base.BaseFragment;
+import com.blackdog.module.channel.adapter.ChannelAdapter;
+import com.blackdog.module.search.SearchActivity;
 import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.blackdog.util.SongUtil;
@@ -21,14 +24,15 @@ import com.lzx.starrysky.manager.MusicManager;
 
 import java.util.ArrayList;
 
-import static com.blackdog.module.channel.base.ChannelContact.REQUEST_COUNT;
+import static com.blackdog.module.channel.ChannelContact.REQUEST_COUNT;
 
-public class ChannelFragment extends Fragment implements ChannelContact.View {
+public class ChannelFragment extends BaseFragment implements ChannelContact.View {
 
 
     private static final String KEY_BUNDLE_TYPE = "KEY_BUNDLE_TYPE";
     private RecyclerView mRv;
     private SwipeRefreshLayout mRefresh;
+    private FloatingActionButton mSearchButton;
     private ChannelAdapter mAdapter;
     private ChannelContact.Presenter mPresenter;
 
@@ -40,6 +44,7 @@ public class ChannelFragment extends Fragment implements ChannelContact.View {
         View view = inflater.inflate(R.layout.fragment_channel, null, false);
         mRv = view.findViewById(R.id.rv_channel);
         mRefresh = view.findViewById(R.id.layout_refresh);
+        mSearchButton = view.findViewById(R.id.btn_serch);
         return view;
     }
 
@@ -71,6 +76,12 @@ public class ChannelFragment extends Fragment implements ChannelContact.View {
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 Song song = (Song) adapter.getData().get(position);
                 MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
+            }
+        });
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SearchActivity.actionStart(getActivity());
             }
         });
     }
