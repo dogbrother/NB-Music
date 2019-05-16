@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.blackdog.greendao.DaoMaster;
 import com.blackdog.greendao.DaoSession;
+import com.blackdog.greendao.SongDao;
 
 
 public class SqlCenter {
@@ -14,6 +15,7 @@ public class SqlCenter {
     private DaoSession mDaoSession;
     private DaoMaster mDaoMaster;
     private SQLiteDatabase mDb;
+    private SongDao mSongDao;
     private static boolean mIsInit;
 
     private SqlCenter() {
@@ -34,9 +36,14 @@ public class SqlCenter {
         mDb = devOpenHelper.getWritableDatabase();
         mDaoMaster = new DaoMaster(mDb);
         mDaoSession = mDaoMaster.newSession();
+        mSongDao = mDaoSession.getSongDao();
     }
 
     public DaoSession getDaoSession() {
         return mDaoSession;
+    }
+
+    public SongDao getSongDao() {
+        return mSongDao;
     }
 }

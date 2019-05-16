@@ -3,6 +3,7 @@ package com.blackdog.musiclibrary.remote.baidu.request;
 import android.text.TextUtils;
 
 
+import com.blackdog.musiclibrary.model.RequestCallBack;
 import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.musiclibrary.remote.baidu.model.BaiduSong;
 import com.blackdog.musiclibrary.remote.base.BaseRequest;
@@ -51,7 +52,7 @@ public class BaiduRequest extends BaseRequest {
 
 
     @Override
-    public void searchInternal(int page, int count, String name, final RequectCallBack callBack) {
+    public void searchInternal(int page, int count, String name, final RequestCallBack callBack) {
         BaiduRequestInterface requestInterface = RETROFIT.create(BaiduRequestInterface.class);
         Observable<ResponseBody> observable = requestInterface.search(name, page, count);
         observable.subscribeOn(Schedulers.io())

@@ -10,14 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.blackdog.R;
 import com.blackdog.module.base.BaseActivity;
 import com.blackdog.module.channel.adapter.ChannelAdapter;
+import com.blackdog.musiclibrary.local.LocalMusicManager;
+import com.blackdog.musiclibrary.model.RequestCallBack;
 import com.blackdog.musiclibrary.model.Song;
-import com.blackdog.musiclibrary.remote.base.BaseRequest;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.blackdog.util.SongUtil;
 import com.blackdog.util.ToastUtil;
@@ -69,7 +69,7 @@ public class SearchActivity extends BaseActivity {
                 }
                 mProgressDialog.show();
                 ChannelMusicFactory.getRequest(ChannelMusicFactory.CHANNEL_KUGOU)
-                        .searchMusic(SearchActivity.this, 0, 20, searchText, new BaseRequest.RequectCallBack() {
+                        .searchMusic(SearchActivity.this, 0, 20, searchText, new RequestCallBack() {
                             @Override
                             public void onSucc(List<Song> music) {
                                 mProgressDialog.dismiss();
@@ -89,6 +89,7 @@ public class SearchActivity extends BaseActivity {
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 Song song = (Song) adapter.getData().get(position);
                 MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
+                LocalMusicManager.getInstance().save(song);
             }
         });
     }

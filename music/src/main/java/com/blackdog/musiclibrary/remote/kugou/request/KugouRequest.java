@@ -3,6 +3,7 @@ package com.blackdog.musiclibrary.remote.kugou.request;
 import android.text.TextUtils;
 
 
+import com.blackdog.musiclibrary.model.RequestCallBack;
 import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.musiclibrary.remote.base.BaseRequest;
 import com.blackdog.musiclibrary.remote.kugou.model.KugouSong;
@@ -27,7 +28,7 @@ public class KugouRequest extends BaseRequest {
     private static final String TAG = "KugouRequest";
 
     @Override
-    public void searchInternal(int page, int count, String name, final RequectCallBack callBack) {
+    public void searchInternal(int page, int count, String name, final RequestCallBack callBack) {
         KugouRequestInterface kugouRequestInterface = RETROFIT.create(KugouRequestInterface.class);
         Observable<ResponseBody> observable = kugouRequestInterface.searchMusic(page, count, name);
         observable.subscribeOn(Schedulers.io())

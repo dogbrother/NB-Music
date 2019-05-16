@@ -20,6 +20,7 @@ import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.blackdog.util.SongUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.loadmore.SimpleLoadMoreView;
 import com.lzx.starrysky.manager.MusicManager;
 
 import java.util.ArrayList;
@@ -52,15 +53,24 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initValues();
+        addListeners();
+        mPresenter.request(0, REQUEST_COUNT);
+    }
+
+    private void initValues(){
+        //presenter
         mType = getArguments().getInt(KEY_BUNDLE_TYPE);
         mPresenter = new ChannelPresenter();
         mPresenter.setView(this);
         mPresenter.setType(mType);
+        //recycler
         mRv.setLayoutManager(new LinearLayoutManager(getContext()));
         mAdapter = new ChannelAdapter(new ArrayList<>());
         mAdapter.setPreLoadNumber(REQUEST_COUNT);
+        mAdapter.setEnableLoadMore(true);
+        mAdapter.setLoadMoreView(new SimpleLoadMoreView());
         mRv.setAdapter(mAdapter);
-        addListeners();
     }
 
     private void addListeners() {
@@ -84,6 +94,13 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
                 SearchActivity.actionStart(getActivity());
             }
         });
+        mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
+            @Override
+            public void onLoadMoreRequested() {
+                int count = mAdapter.getData().size();
+                mPresenter.request(count, REQUEST_COUNT);
+            }
+        }, mRv);
     }
 
     @Override

@@ -1,11 +1,13 @@
 package com.blackdog.module.channel;
 
+import com.blackdog.musiclibrary.local.LocalMusicManager;
+import com.blackdog.musiclibrary.model.RequestCallBack;
 import com.blackdog.musiclibrary.model.Song;
-import com.blackdog.musiclibrary.remote.base.BaseRequest;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.blackdog.util.ToastUtil;
 
 import java.util.List;
+
 
 public class ChannelPresenter implements ChannelContact.Presenter {
 
@@ -24,19 +26,22 @@ public class ChannelPresenter implements ChannelContact.Presenter {
 
     @Override
     public void request(int offset, int count) {
-        ChannelMusicFactory.getRequest(mChannelType)
-                .searchMusic(mView.getContext(), offset, count, "只是太爱你", new BaseRequest.RequectCallBack() {
-                    @Override
-                    public void onSucc(List<Song> musics) {
-                        mView.getAdapter().setNewData(musics);
-                        mView.onLoadComplete();
-                    }
+        LocalMusicManager.getInstance().queryMusic(offset, count, new RequestCallBack() {
+            @Override
+            public void onSucc(List<Song> music) {
+                if (offset <= 0) {
+                    mView.getAdapter().setNewData(music);
+                } else {
+                    mView.getAdapter().addData(music);
+                }
+                mView.onLoadComplete();
+            }
 
-                    @Override
-                    public void onError(String response) {
-                        ToastUtil.show(response);
-                        mView.onLoadComplete();
-                    }
-                });
+            @Override
+            public void onError(String response) {
+                ToastUtil.show(response);
+                mView.onLoadComplete();
+            }
+        });
     }
 }
