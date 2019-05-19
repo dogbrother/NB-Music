@@ -19,6 +19,8 @@ import com.blackdog.module.base.BaseActivity;
 import com.blackdog.module.channel.ChannelFragment;
 import com.blackdog.module.search.SearchActivity;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
+import com.blackdog.util.ToastUtil;
+import com.lzx.starrysky.manager.MusicManager;
 
 
 public class MainActivity extends BaseActivity {
@@ -34,10 +36,13 @@ public class MainActivity extends BaseActivity {
     };
 
     private TextView mTvTitle;
+    private TextView mTvPre;
+    private TextView mTvNext;
     private TabLayout mTabLayout;
     private ViewPager mVp;
     private FloatingActionButton mBtnSearch;
     private MyPageAdapter mAdapter;
+    private long mLastBackPreTime;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +80,18 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+        mTvPre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MusicManager.getInstance().skipToPrevious();
+            }
+        });
+        mTvNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MusicManager.getInstance().skipToNext();
+            }
+        });
     }
 
     private void initViews() {
@@ -84,6 +101,8 @@ public class MainActivity extends BaseActivity {
         mTabLayout.setupWithViewPager(mVp);
         mBtnSearch = findViewById(R.id.fab_search);
         mTvTitle = findViewById(R.id.tv_title);
+        mTvPre = findViewById(R.id.tv_pre);
+        mTvNext = findViewById(R.id.tv_next);
         mTvTitle.setText(TITLES[0]);
     }
 
@@ -117,4 +136,15 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+
+    @Override
+    public void onBackPressed() {
+        long currentTime = System.currentTimeMillis();
+        if (Math.abs(currentTime - mLastBackPreTime) < 2000l) {
+            super.onBackPressed();
+        } else {
+            mLastBackPreTime = currentTime;
+            ToastUtil.show("再按一次退出");
+        }
+    }
 }

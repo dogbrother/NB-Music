@@ -30,14 +30,11 @@ import static com.blackdog.module.channel.ChannelContact.REQUEST_COUNT;
 
 public class ChannelFragment extends BaseFragment implements ChannelContact.View, LocalMusicManager.SongChangeListener {
 
-
     private static final String KEY_BUNDLE_TYPE = "KEY_BUNDLE_TYPE";
-
     private RecyclerView mRv;
     private SwipeRefreshLayout mRefresh;
-    private ChannelAdapter mAdapter;
+    private ChannelAdapter mAdapter = new ChannelAdapter(null);;
     private ChannelContact.Presenter mPresenter;
-
     private int mType;
 
     @Nullable
@@ -73,7 +70,6 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
         mPresenter.setType(mType);
         //recycler
         mRv.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new ChannelAdapter(new ArrayList<>());
         mAdapter.setPreLoadNumber(REQUEST_COUNT);
         mAdapter.setEnableLoadMore(true);
         mAdapter.setLoadMoreView(new SimpleLoadMoreView());
@@ -125,6 +121,23 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
                 return true;
             }
         });
+        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+//                if (getUserVisibleHint()) {
+//                    MusicManager.getInstance().updatePlayList(SongUtil.transforSong(mAdapter.getData()));
+//                }
+            }
+        });
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+//        if (isVisibleToUser) {
+//            MusicManager.getInstance().updatePlayList(SongUtil.transforSong(mAdapter.getData()));
+//        }
     }
 
     @Override
