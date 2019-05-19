@@ -92,7 +92,9 @@ public class KugouRequest extends BaseRequest {
             return false;
         }
         song.setDownloadUrl(reponseJson.optString("url"))
+                .setChannelName("酷狗")
                 .setSize(reponseJson.optLong("fileSize") + "")
+                .setDuration(reponseJson.optInt("timeLength"))
                 .setSinger(reponseJson.optString("singerName"));
         return true;
     }

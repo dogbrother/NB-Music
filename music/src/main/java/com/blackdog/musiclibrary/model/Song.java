@@ -3,6 +3,7 @@ package com.blackdog.musiclibrary.model;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Unique;
 
 @Entity
 public class Song {
@@ -10,23 +11,35 @@ public class Song {
     private Long id;
     private String songName;
     private String singer;
+    @Unique
     private String downloadUrl;
     private String size;
     private long duration;
+    private String channelName;
 
-    @Generated(hash = 1485647960)
+    @Generated(hash = 1934683397)
     public Song(Long id, String songName, String singer, String downloadUrl,
-                String size, long duration) {
+                String size, long duration, String channelName) {
         this.id = id;
         this.songName = songName;
         this.singer = singer;
         this.downloadUrl = downloadUrl;
         this.size = size;
         this.duration = duration;
+        this.channelName = channelName;
     }
 
     @Generated(hash = 87031450)
     public Song() {
+    }
+
+    public String getChannelName() {
+        return channelName;
+    }
+
+    public Song setChannelName(String channelName) {
+        this.channelName = channelName;
+        return this;
     }
 
     public Long getId() {

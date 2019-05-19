@@ -1,23 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
-    <!--<android.support.v7.widget.AppCompatEditText-->
-    <!--android:id="@+id/et_song"-->
-    <!--android:hint="请输入音乐名"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content" />-->
-    <!--<Button-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:text="搜索"-->
-    <!--android:onClick="searchSong"-->
-    <!--android:layout_height="wrap_content" />-->
-
-    <FrameLayout
-        android:id="@+id/layout_content"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <include layout="@layout/view_title_bar" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/vp_main"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tb_main"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            app:tabIndicatorHeight="0dp"
+            app:tabSelectedTextColor="@color/colorPrimaryDark"
+            app:tabTextColor="#aa000000" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="50dp"
+        android:elevation="3dp"
+        android:src="@drawable/ic_search" />
+</FrameLayout>

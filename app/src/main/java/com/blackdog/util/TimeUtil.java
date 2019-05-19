@@ -1,17 +1,15 @@
 package com.blackdog.util;
 
-import com.blackdog.musiclibrary.model.Song;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class TimeUtil {
-
-    private static SimpleDateFormat FORMAT_MINUTE_AND_SECONDD = new SimpleDateFormat("mm:ss", Locale.CHINA);
-
-    public static String getMinuteAndSecond(long time) {
-        return FORMAT_MINUTE_AND_SECONDD.format(new Date(time));
+    public static String getSongDuration(int time) {
+        if (time <= 0) {
+            return "未知时长";
+        }
+        int second = time % 60;
+        int minute = time / 60;
+        String secondStr = second >= 10 ? String.valueOf(second) : "0" + second;
+        return String.format("%d:%s", minute, secondStr);
     }
 
 }

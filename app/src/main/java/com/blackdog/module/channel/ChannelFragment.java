@@ -1,9 +1,10 @@
 package com.blackdog.module.channel;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,7 +16,7 @@ import android.view.ViewGroup;
 import com.blackdog.R;
 import com.blackdog.module.base.BaseFragment;
 import com.blackdog.module.channel.adapter.ChannelAdapter;
-import com.blackdog.module.search.SearchActivity;
+import com.blackdog.musiclibrary.local.LocalMusicManager;
 import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.blackdog.util.SongUtil;
@@ -27,13 +28,13 @@ import java.util.ArrayList;
 
 import static com.blackdog.module.channel.ChannelContact.REQUEST_COUNT;
 
-public class ChannelFragment extends BaseFragment implements ChannelContact.View {
+public class ChannelFragment extends BaseFragment implements ChannelContact.View, LocalMusicManager.SongChangeListener {
 
 
     private static final String KEY_BUNDLE_TYPE = "KEY_BUNDLE_TYPE";
+
     private RecyclerView mRv;
     private SwipeRefreshLayout mRefresh;
-    private FloatingActionButton mSearchButton;
     private ChannelAdapter mAdapter;
     private ChannelContact.Presenter mPresenter;
 
@@ -45,7 +46,6 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
         View view = inflater.inflate(R.layout.fragment_channel, null, false);
         mRv = view.findViewById(R.id.rv_channel);
         mRefresh = view.findViewById(R.id.layout_refresh);
-        mSearchButton = view.findViewById(R.id.btn_serch);
         return view;
     }
 
@@ -55,10 +55,17 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
         super.onViewCreated(view, savedInstanceState);
         initValues();
         addListeners();
+        LocalMusicManager.getInstance().registerSongChangeListener(ChannelMusicFactory.getChannelName(mType), this);
         mPresenter.request(0, REQUEST_COUNT);
     }
 
-    private void initValues(){
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        LocalMusicManager.getInstance().unRegisterSongChannelListener(ChannelMusicFactory.getChannelName(mType), this);
+    }
+
+    private void initValues() {
         //presenter
         mType = getArguments().getInt(KEY_BUNDLE_TYPE);
         mPresenter = new ChannelPresenter();
@@ -88,12 +95,6 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
                 MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
             }
         });
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SearchActivity.actionStart(getActivity());
-            }
-        });
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
@@ -101,6 +102,29 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
                 mPresenter.request(count, REQUEST_COUNT);
             }
         }, mRv);
+        mAdapter.setOnItemLongClickListener(new BaseQuickAdapter.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(BaseQuickAdapter adapter, View view, int position) {
+                Song song = (Song) adapter.getData().get(position);
+                new AlertDialog.Builder(getContext())
+                        .setTitle("提示")
+                        .setMessage("是否删除" + song.getSongName())
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                LocalMusicManager.getInstance().removeMusic(song);
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -114,11 +138,29 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
     }
 
     public static Fragment newInstance(@ChannelMusicFactory.Channel int type) {
-        Fragment fragment = new ChannelFragment();
+        ChannelFragment fragment = new ChannelFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(KEY_BUNDLE_TYPE, type);
         fragment.setArguments(bundle);
         return fragment;
     }
+
+    public int getType() {
+        return mType;
+    }
+
+
+    @Override
+    public void onAdd(Song song) {
+        mAdapter.addData(song);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDelete(Song song) {
+        mAdapter.getData().remove(song);
+        mAdapter.notifyDataSetChanged();
+    }
+
 
 }

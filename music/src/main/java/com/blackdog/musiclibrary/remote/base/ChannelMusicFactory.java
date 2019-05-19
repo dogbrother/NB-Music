@@ -30,4 +30,15 @@ public class ChannelMusicFactory {
         }
     }
 
+    public static String getChannelName(@Channel int channelId) {
+        switch (channelId) {
+            case CHANNEL_BAIDU:
+                return "百度";
+            case CHANNEL_KUGOU:
+                return "酷狗";
+            default:
+                return null;
+        }
+    }
+
 }

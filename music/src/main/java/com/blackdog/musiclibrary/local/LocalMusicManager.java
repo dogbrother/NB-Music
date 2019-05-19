@@ -1,15 +1,25 @@
 package com.blackdog.musiclibrary.local;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
+import android.util.Log;
 
+import com.blackdog.greendao.SongDao;
 import com.blackdog.musiclibrary.local.sqlite.SqlCenter;
 import com.blackdog.musiclibrary.model.RequestCallBack;
 import com.blackdog.musiclibrary.model.Song;
+import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LocalMusicManager {
+
+    private static final String TAG = "LocalMusicManager";
 
     private LocalMusicManager() {
 
@@ -22,37 +32,68 @@ public class LocalMusicManager {
     }
 
     public void save(Song song) {
-        SqlCenter.getInstance().getSongDao().save(song);
+        if (song == null || TextUtils.isEmpty(song.getDownloadUrl())) {
+            Log.i(TAG, "download url is empty");
+            return;
+        }
+        Song saveSong = SqlCenter.getInstance().getSongDao().queryBuilder()
+                .where(SongDao.Properties.DownloadUrl.eq(song.getDownloadUrl())).build().unique();
+        if (saveSong != null) {
+            song.setId(saveSong.getId());
+            SqlCenter.getInstance().getSongDao().update(song);
+        } else {
+            SqlCenter.getInstance().getSongDao().save(song);
+            if (mSongChangeListeners.containsKey(song.getChannelName())) {
+                List<SongChangeListener> listeners = mSongChangeListeners.get(song.getChannelName());
+                for (SongChangeListener listener : listeners) {
+                    listener.onAdd(song);
+                }
+            }
+        }
     }
 
     public void removeMusic(Song song) {
         SqlCenter.getInstance().getSongDao().delete(song);
+        if (mSongChangeListeners.containsKey(song.getChannelName())) {
+            List<SongChangeListener> listeners = mSongChangeListeners.get(song.getChannelName());
+            for (SongChangeListener listener : listeners) {
+                listener.onDelete(song);
+            }
+        }
     }
 
-    public void removeMusic(long songId) {
-        removeMusic(new Song().setId(songId));
+    public void queryMusic(int channelId, int offset, int count, RequestCallBack callBack) {
+        new QueryAsyncTask(channelId, offset, count, callBack).execute();
     }
 
     public void queryMusic(int offset, int count, RequestCallBack callBack) {
-        new QueryAsyncTask(offset, count, callBack).execute();
+        queryMusic(-1, offset, count, callBack);
     }
 
     private static class QueryAsyncTask extends AsyncTask<Void, Void, List<Song>> {
 
+        private int mChannelId;
         private int mOffset;
         private int mCount;
         private RequestCallBack mCallBack;
 
-        public QueryAsyncTask(int offset, int count, RequestCallBack callBack) {
+        public QueryAsyncTask(int channelId, int offset, int count, RequestCallBack callBack) {
             mOffset = offset;
             mCount = count;
+            mChannelId = channelId;
             mCallBack = callBack;
         }
 
         @Override
         protected List<Song> doInBackground(Void... voids) {
-            List<Song> list = SqlCenter.getInstance().getSongDao().queryBuilder().limit(mCount)
-                    .offset(mOffset)
+            QueryBuilder<Song> queryBuilder = SqlCenter.getInstance().getSongDao()
+                    .queryBuilder()
+                    .limit(mCount)
+                    .offset(mOffset);
+            if (mChannelId != -1) {
+                queryBuilder = queryBuilder.where(SongDao.Properties.ChannelName.eq(ChannelMusicFactory.getChannelName(mChannelId)));
+            }
+            List<Song> list = queryBuilder
                     .build()
                     .list();
             if (list == null) {
@@ -67,6 +108,33 @@ public class LocalMusicManager {
             if (mCallBack != null) {
                 mCallBack.onSucc(songs);
             }
+        }
+    }
+
+
+    public interface SongChangeListener {
+        void onAdd(Song song);
+
+        void onDelete(Song song);
+    }
+
+    private Map<String, List<SongChangeListener>> mSongChangeListeners = new HashMap<>();
+
+
+    public void registerSongChangeListener(String channel, SongChangeListener listener) {
+        if (!mSongChangeListeners.containsKey(channel)) {
+            mSongChangeListeners.put(channel, new ArrayList<SongChangeListener>());
+        }
+        List<SongChangeListener> listeners = mSongChangeListeners.get(channel);
+        listeners.add(listener);
+        mSongChangeListeners.put(channel, listeners);
+    }
+
+    public void unRegisterSongChannelListener(String channel, SongChangeListener listener) {
+        if (mSongChangeListeners.containsKey(channel)) {
+            List<SongChangeListener> listeners = mSongChangeListeners.get(channel);
+            listeners.remove(listener);
+            mSongChangeListeners.put(channel, listeners);
         }
     }
 

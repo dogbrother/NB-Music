@@ -1,6 +1,7 @@
 package com.blackdog.musiclibrary.remote.baidu.request;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 
 import com.blackdog.musiclibrary.model.RequestCallBack;
@@ -25,6 +26,9 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class BaiduRequest extends BaseRequest {
+
+    private static final String TAG = "BaiduRequest";
+
     private boolean requestSongDetailInfo(BaiduSong song) throws Exception {
         BaiduRequestInterface requestInterface = RETROFIT.create(BaiduRequestInterface.class);
         Call<ResponseBody> call = requestInterface.queryMusicDetail(song.getBaiduSongId());
@@ -45,6 +49,7 @@ public class BaiduRequest extends BaseRequest {
             song.setSongName(songDetailJson.optString("songName"));
             song.setSize(String.valueOf(songDetailJson.optLong("size")));
             song.setDuration(songDetailJson.optLong("time"));
+            song.setChannelName("百度");
             song.setSinger(songDetailJson.optString("artistName"));
         }
         return true;
@@ -79,10 +84,14 @@ public class BaiduRequest extends BaseRequest {
                         return musics;
                     }
                 })
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-
+                        Log.i(TAG, "e : " + throwable.getMessage());
+                        if (callBack != null) {
+                            callBack.onError(throwable.getMessage());
+                        }
                     }
                 })
                 .doOnNext(new Consumer<List<Song>>() {
@@ -91,7 +100,7 @@ public class BaiduRequest extends BaseRequest {
                         if (callBack != null)
                             callBack.onSucc(songs);
                     }
-                }).observeOn(AndroidSchedulers.mainThread())
+                })
                 .subscribe();
     }
 }

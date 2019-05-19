@@ -26,15 +26,18 @@ public class ChannelPresenter implements ChannelContact.Presenter {
 
     @Override
     public void request(int offset, int count) {
-        LocalMusicManager.getInstance().queryMusic(offset, count, new RequestCallBack() {
+        LocalMusicManager.getInstance().queryMusic(mChannelType, offset, count, new RequestCallBack() {
             @Override
             public void onSucc(List<Song> music) {
+                mView.onLoadComplete();
                 if (offset <= 0) {
                     mView.getAdapter().setNewData(music);
                 } else {
                     mView.getAdapter().addData(music);
                 }
-                mView.onLoadComplete();
+                if (music.size() < count) {
+                    mView.getAdapter().loadMoreEnd();
+                }
             }
 
             @Override
