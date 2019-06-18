@@ -11,19 +11,19 @@
         android:layout_height="113dp"
         android:layout_gravity="center_vertical"
         android:adjustViewBounds="true"
-        android:scaleType="centerCrop" />
+        android:contentDescription="TODO" android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/img_notifyIcon"
+        android:layout_toEndOf="@+id/img_notifyIcon" android:layout_toRightOf="@+id/img_notifyIcon"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp" android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <TextView
@@ -46,7 +46,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:adjustViewBounds="true"
-                android:padding="3dp"
+                android:contentDescription="TODO" android:padding="3dp"
                 android:src="@drawable/note_btn_close"
                 android:tint="#222222" />
         </LinearLayout>
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
-            android:ellipsize="end"
+            android:layout_marginStart="10dp" android:ellipsize="end"
             android:fadingEdge="horizontal"
             android:lines="1"
             android:singleLine="true"
@@ -84,7 +84,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginRight="10dp"
                 android:layout_toLeftOf="@+id/img_notifyPre"
-                android:contentDescription="@null"
+                android:layout_toStartOf="@+id/img_notifyPre" android:layout_marginEnd="10dp" android:contentDescription="@null"
                 android:padding="6dp"
                 android:src="@drawable/notify_btn_light_favorite_normal" />
 
@@ -93,7 +93,7 @@
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_toLeftOf="@+id/img_notifyPlayOrPause"
-                android:adjustViewBounds="true"
+                android:layout_toStartOf="@+id/img_notifyPlayOrPause" android:adjustViewBounds="true"
                 android:contentDescription="@null"
                 android:padding="6dp"
                 android:src="@drawable/notify_btn_light_prev_selector" />
@@ -115,7 +115,7 @@
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_toRightOf="@+id/img_notifyPlayOrPause"
-                android:adjustViewBounds="true"
+                android:layout_toEndOf="@+id/img_notifyPlayOrPause" android:adjustViewBounds="true"
                 android:contentDescription="@null"
                 android:padding="6dp"
                 android:src="@drawable/notify_btn_light_next_selector" />
@@ -126,7 +126,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/img_notifyNext"
-                android:contentDescription="@null"
+                android:layout_toEndOf="@+id/img_notifyNext" android:layout_marginStart="10dp" android:contentDescription="@null"
                 android:padding="6dp"
                 android:src="@drawable/notify_btn_light_lyrics_normal" />
         </RelativeLayout>

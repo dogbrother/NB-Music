@@ -11,7 +11,7 @@
         android:layout_height="64dp"
         android:layout_gravity="center_vertical"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY" />
+        android:contentDescription="TODO" android:scaleType="fitXY" />
 
     <LinearLayout
         android:id="@+id/ll_custom_button2"
@@ -21,7 +21,7 @@
         android:layout_weight="1.0"
         android:orientation="vertical"
         android:paddingLeft="13.0dp"
-        android:paddingTop="2.0dp"
+        android:paddingStart="13.0dp" android:paddingTop="2.0dp"
         android:paddingBottom="2.0dp">
 
         <TextView
@@ -73,7 +73,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:layout_toRightOf="@+id/img_notifyPre"
-            android:contentDescription="@null"
+            android:layout_toEndOf="@+id/img_notifyPre" android:contentDescription="@null"
             android:scaleType="fitXY"
             android:src="@drawable/notify_btn_light_play_normal" />
 
@@ -83,7 +83,7 @@
             android:layout_height="35dp"
             android:layout_marginTop="5dp"
             android:layout_toRightOf="@+id/img_notifyPlayOrPause"
-            android:adjustViewBounds="true"
+            android:layout_toEndOf="@+id/img_notifyPlayOrPause" android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:padding="8dp"
             android:src="@drawable/notify_btn_light_next_selector" />

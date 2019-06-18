@@ -20,20 +20,25 @@ import com.blackdog.musiclibrary.local.LocalMusicManager;
 import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
 import com.blackdog.util.SongUtil;
+import com.blackdog.util.ToastUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.loadmore.SimpleLoadMoreView;
 import com.lzx.starrysky.manager.MusicManager;
+import com.lzx.starrysky.manager.OnPlayerEventListener;
+import com.lzx.starrysky.model.SongInfo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.blackdog.module.channel.ChannelContact.REQUEST_COUNT;
 
-public class ChannelFragment extends BaseFragment implements ChannelContact.View, LocalMusicManager.SongChangeListener {
+public class ChannelFragment extends BaseFragment implements ChannelContact.View, LocalMusicManager.SongChangeListener, OnPlayerEventListener {
 
     private static final String KEY_BUNDLE_TYPE = "KEY_BUNDLE_TYPE";
     private RecyclerView mRv;
     private SwipeRefreshLayout mRefresh;
-    private ChannelAdapter mAdapter = new ChannelAdapter(null);;
+    private ChannelAdapter mAdapter = new ChannelAdapter(null);
+    ;
     private ChannelContact.Presenter mPresenter;
     private int mType;
 
@@ -60,6 +65,7 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
     public void onDestroyView() {
         super.onDestroyView();
         LocalMusicManager.getInstance().unRegisterSongChannelListener(ChannelMusicFactory.getChannelName(mType), this);
+        MusicManager.getInstance().removePlayerEventListener(this);
     }
 
     private void initValues() {
@@ -121,23 +127,7 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
                 return true;
             }
         });
-        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-//                if (getUserVisibleHint()) {
-//                    MusicManager.getInstance().updatePlayList(SongUtil.transforSong(mAdapter.getData()));
-//                }
-            }
-        });
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-//        if (isVisibleToUser) {
-//            MusicManager.getInstance().updatePlayList(SongUtil.transforSong(mAdapter.getData()));
-//        }
+        MusicManager.getInstance().addPlayerEventListener(this);
     }
 
     @Override
@@ -176,4 +166,37 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
     }
 
 
+    @Override
+    public void onMusicSwitch(SongInfo songInfo) {
+    }
+
+    @Override
+    public void onPlayerStart() {
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPlayerPause() {
+
+    }
+
+    @Override
+    public void onPlayerStop() {
+
+    }
+
+    @Override
+    public void onPlayCompletion(SongInfo songInfo) {
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onBuffering() {
+
+    }
+
+    @Override
+    public void onError(int errorCode, String errorMsg) {
+        ToastUtil.show(errorMsg);
+    }
 }

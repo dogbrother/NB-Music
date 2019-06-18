@@ -78,6 +78,6 @@
         android:layout_gravity="right|bottom"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="50dp"
-        android:elevation="3dp"
+        android:layout_marginEnd="15dp" android:elevation="3dp"
         android:src="@drawable/ic_search" />
 </FrameLayout>

@@ -1,41 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="15dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginRight="15dp"
-    android:background="@drawable/bg_song_item"
-    android:orientation="vertical"
-    android:padding="10dp">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/tv_name"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        tools:text="只是太爱你" />
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/bg_song_item"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <TextView
-        android:id="@+id/tv_single"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:textColor="#aa000000"
-        android:textSize="16sp"
-        tools:text="歌手：张敬轩" />
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="只是太爱你" />
 
-    <TextView
-        android:id="@+id/tv_duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="14sp"
-        tools:text="时长：10:13" />
+        <TextView
+            android:id="@+id/tv_single"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:textColor="#aa000000"
+            android:textSize="16sp"
+            tools:text="歌手：张敬轩" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tv_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            tools:text="时长：10:13" />
+
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/iv_playing"
+        android:visibility="gone"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginEnd="24dp" android:layout_marginRight="24dp"
+        android:contentDescription="TODO" android:src="@drawable/music_playing"
+        android:layout_width="20dp"
+        android:layout_height="20dp" />
+</FrameLayout>

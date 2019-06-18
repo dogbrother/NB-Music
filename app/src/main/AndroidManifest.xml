@@ -43,7 +43,7 @@
             </intent-filter>
         </activity>
         <receiver
-            android:name=".receiver.NotificationReceiver"
+            android:name=".receiver.NotificationReceiver" android:permission="" 
             android:exported="true">
             <intent-filter>
                 <action android:name="ACTION_PLAY_OR_PAUSE" />
