@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/draw_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,71 +11,47 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/colorPrimaryDark">
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
+
+            <ImageView
+                android:onClick="toogleDraw"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_action_drawlayou_menu" />
 
             <TextView
-                android:id="@+id/tv_pre"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="上一首"
-                android:textColor="@android:color/white"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textColor="@android:color/white"
+                android:text="NB-MUSIC"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="酷狗" />
-
-            <TextView
-                android:id="@+id/tv_next"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:textColor="@color/black"
                 android:gravity="center"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="下一首"
-                android:textColor="@android:color/white"
-                android:textSize="15sp" />
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:onClick="intentToSearch"
+                android:src="@drawable/ic_search"
+                android:layout_width="25dp"
+                android:layout_height="25dp" />
         </LinearLayout>
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/vp_main"
+        <FrameLayout
+            android:id="@+id/layout_content"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray" />
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tb_main"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            app:tabIndicatorHeight="0dp"
-            app:tabSelectedTextColor="@color/colorPrimaryDark"
-            app:tabTextColor="#aa000000" />
-
+            android:layout_height="match_parent" />
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="50dp"
-        android:layout_marginEnd="15dp" android:elevation="3dp"
-        android:src="@drawable/ic_search" />
-</FrameLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_channel"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@android:color/white"
+        android:orientation="vertical" />
+
+
+</android.support.v4.widget.DrawerLayout>

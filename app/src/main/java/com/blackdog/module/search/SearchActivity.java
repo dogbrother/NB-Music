@@ -84,8 +84,9 @@ public class SearchActivity extends BaseActivity {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 Song song = (Song) adapter.getData().get(position);
-                MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
                 LocalMusicManager.getInstance().save(song);
+                MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
+                mAdapter.notifyDataSetChanged();
             }
         });
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {

@@ -44,12 +44,12 @@
             tools:text="时长：10:13" />
 
     </LinearLayout>
+
     <ImageView
         android:id="@+id/iv_playing"
-        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="right|center_vertical"
-        android:layout_marginEnd="24dp" android:layout_marginRight="24dp"
-        android:contentDescription="TODO" android:src="@drawable/music_playing"
-        android:layout_width="20dp"
-        android:layout_height="20dp" />
+        android:layout_marginRight="24dp"
+        android:src="@drawable/playing" />
 </FrameLayout>

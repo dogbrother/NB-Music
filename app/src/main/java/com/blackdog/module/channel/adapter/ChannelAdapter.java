@@ -9,6 +9,7 @@ import com.blackdog.util.TimeUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.lzx.starrysky.manager.MusicManager;
+import com.lzx.starrysky.model.SongInfo;
 
 import java.util.List;
 
@@ -22,11 +23,11 @@ public class ChannelAdapter extends BaseQuickAdapter<Song, BaseViewHolder> {
         setTvContent(helper, item.getSongName(), "未知歌曲", "", R.id.tv_name);
         setTvContent(helper, item.getSinger(), "未知歌手", "歌手：", R.id.tv_single);
         helper.setText(R.id.tv_duration, String.format("时长:%s", TimeUtil.getSongDuration((int) item.getDuration())));
-        if (MusicManager.getInstance().getNowPlayingSongInfo() != null
-                && MusicManager.getInstance().getNowPlayingSongInfo().getSongId().equals(String.valueOf(item.getId()))) {
+        SongInfo songInfo = MusicManager.getInstance().getNowPlayingSongInfo();
+        helper.setVisible(R.id.iv_playing, false);
+        if (songInfo != null && songInfo.getDownloadUrl().equals(item.getDownloadUrl())) {
             helper.setVisible(R.id.iv_playing, true);
-        } else {
-            helper.setVisible(R.id.iv_playing, false);
+
         }
     }
 

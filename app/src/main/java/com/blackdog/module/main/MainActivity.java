@@ -1,150 +1,125 @@
 package com.blackdog.module.main;
 
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.FrameLayout;
 
 
 import com.blackdog.R;
 
 import com.blackdog.module.base.BaseActivity;
 import com.blackdog.module.channel.ChannelFragment;
+import com.blackdog.module.main.adapter.ChannelMenuAdapter;
+import com.blackdog.module.main.adapter.model.ChannelMenuItem;
+import com.blackdog.module.main.adapter.model.TopMenuItem;
 import com.blackdog.module.search.SearchActivity;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
-import com.blackdog.util.ToastUtil;
-import com.lzx.starrysky.manager.MusicManager;
+import com.blackdog.widget.CommonLinearDecoration;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.entity.MultiItemEntity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends BaseActivity {
     private final static String TAG = "MainActivity";
-    private static final Fragment[] FRAGMENTS = {
-            ChannelFragment.newInstance(ChannelMusicFactory.CHANNEL_KUGOU),
-            ChannelFragment.newInstance(ChannelMusicFactory.CHANNEL_BAIDU)
-    };
-
-    private static final String[] TITLES = {
-            "酷狗",
-            "百度"
-    };
-
-    private TextView mTvTitle;
-    private TextView mTvPre;
-    private TextView mTvNext;
-    private TabLayout mTabLayout;
-    private ViewPager mVp;
-    private FloatingActionButton mBtnSearch;
-    private MyPageAdapter mAdapter;
-    private long mLastBackPreTime;
+    private DrawerLayout mDrawerLayout;
+    private RecyclerView mRvChannel;
+    private ChannelMenuAdapter mAdapter;
+    private int mCurrentType = ChannelMusicFactory.CHANNEL_KUGOU;
+    private Map<Integer, Fragment> mFragmentMap = new HashMap<>();
 
     @Override
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initValues();
         initViews();
+        initValues();
         addListeners();
-    }
-
-    private void initValues() {
-        mAdapter = new MyPageAdapter(getSupportFragmentManager(), FRAGMENTS, TITLES);
+        initRv();
     }
 
     private void addListeners() {
-        mBtnSearch.setOnClickListener(new View.OnClickListener() {
+        mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                SearchActivity.actionStart(MainActivity.this, ((ChannelFragment) mAdapter.getItem(mVp.getCurrentItem())).getType());
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                MultiItemEntity multiItemEntity = (MultiItemEntity) adapter.getItem(position);
+                if (multiItemEntity instanceof ChannelMenuItem) {
+                    ChannelMenuItem channelMenuItem = (ChannelMenuItem) multiItemEntity;
+                    switchFragment(channelMenuItem.getChannel());
+                    toogleDraw(mDrawerLayout);
+                }
             }
         });
-        mVp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int i, float v, int i1) {
+    }
 
-            }
+    private void initValues() {
+        mAdapter = new ChannelMenuAdapter(null);
+        mAdapter.setEnableLoadMore(false);
+        mCurrentType = -1;
+        switchFragment(ChannelMusicFactory.CHANNEL_KUGOU);
+    }
 
-            @Override
-            public void onPageSelected(int i) {
-                mTvTitle.setText(TITLES[i]);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int i) {
-
-            }
-        });
-        mTvPre.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicManager.getInstance().skipToPrevious();
-            }
-        });
-        mTvNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicManager.getInstance().skipToNext();
-            }
-        });
+    private void initRv() {
+        mRvChannel.setLayoutManager(new LinearLayoutManager(this));
+        mRvChannel.addItemDecoration(new CommonLinearDecoration().setColor(getResources().getColor(R.color.light_gray)));
+        mAdapter.setNewData(getAdapterDatas());
+        mRvChannel.setAdapter(mAdapter);
     }
 
     private void initViews() {
-        mTabLayout = findViewById(R.id.tb_main);
-        mVp = findViewById(R.id.vp_main);
-        mVp.setAdapter(mAdapter);
-        mTabLayout.setupWithViewPager(mVp);
-        mBtnSearch = findViewById(R.id.fab_search);
-        mTvTitle = findViewById(R.id.tv_title);
-        mTvPre = findViewById(R.id.tv_pre);
-        mTvNext = findViewById(R.id.tv_next);
-        mTvTitle.setText(TITLES[0]);
+        mDrawerLayout = findViewById(R.id.draw_layout);
+        mRvChannel = findViewById(R.id.rv_channel);
     }
 
-    private static class MyPageAdapter extends FragmentPagerAdapter {
-
-        private Fragment[] mFragmens;
-        private String[] mTitles;
-
-
-        public MyPageAdapter(FragmentManager fm, Fragment[] fragments, String[] titles) {
-            super(fm);
-            this.mFragmens = fragments;
-            this.mTitles = titles;
-        }
-
-
-        @Override
-        public Fragment getItem(int i) {
-            return mFragmens[i];
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmens.length;
-        }
-
-        @Nullable
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mTitles[position];
-        }
+    private List<MultiItemEntity> getAdapterDatas() {
+        List<MultiItemEntity> multiItemEntities = new ArrayList<>();
+        multiItemEntities.add(new TopMenuItem());
+        multiItemEntities.add(new ChannelMenuItem(ChannelMusicFactory.CHANNEL_KUGOU, "酷狗", R.drawable.icon_kugou_music));
+        multiItemEntities.add(new ChannelMenuItem(ChannelMusicFactory.CHANNEL_BAIDU, "百度", R.drawable.icon_baidu_music));
+        return multiItemEntities;
     }
 
-
-    @Override
-    public void onBackPressed() {
-        long currentTime = System.currentTimeMillis();
-        if (Math.abs(currentTime - mLastBackPreTime) < 2000l) {
-            super.onBackPressed();
+    public void toogleDraw(View view) {
+        if (mDrawerLayout.isDrawerOpen(Gravity.START)) {
+            mDrawerLayout.closeDrawer(Gravity.START);
         } else {
-            mLastBackPreTime = currentTime;
-            ToastUtil.show("再按一次退出");
+            mDrawerLayout.openDrawer(Gravity.START);
         }
     }
+
+    public void intentToSearch(View view) {
+        SearchActivity.actionStart(this, mCurrentType);
+    }
+
+    private void switchFragment(int type) {
+        if (type == mCurrentType) {
+            return;
+        }
+        mCurrentType = type;
+        if (!mFragmentMap.containsKey(mCurrentType)) {
+            mFragmentMap.put(mCurrentType, ChannelFragment.newInstance(mCurrentType));
+        }
+        Fragment fragment = mFragmentMap.get(mCurrentType);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.layout_content, fragment);
+        transaction.commit();
+    }
+
+
 }
