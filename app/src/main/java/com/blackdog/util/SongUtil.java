@@ -15,6 +15,7 @@ public class SongUtil {
         info.setSongUrl(song.getDownloadUrl());
         info.setDuration(song.getDuration());
         info.setArtist(song.getSinger());
+        info.setSongName(song.getSongName());
         return info;
     }
 

@@ -1,8 +1,9 @@
 package com.blackdog.module.main;
 
 
-import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,9 +11,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.blackdog.R;
@@ -24,21 +29,28 @@ import com.blackdog.module.main.adapter.model.ChannelMenuItem;
 import com.blackdog.module.main.adapter.model.TopMenuItem;
 import com.blackdog.module.search.SearchActivity;
 import com.blackdog.musiclibrary.remote.base.ChannelMusicFactory;
-import com.blackdog.widget.CommonLinearDecoration;
+import com.blackdog.util.ScreenUtils;
+import com.blackdog.util.ToastUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
+import com.lzx.starrysky.manager.MusicManager;
+import com.lzx.starrysky.manager.OnPlayerEventListener;
+import com.lzx.starrysky.model.SongInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class MainActivity extends BaseActivity {
     private final static String TAG = "MainActivity";
     private DrawerLayout mDrawerLayout;
     private RecyclerView mRvChannel;
     private ChannelMenuAdapter mAdapter;
+    private FrameLayout mLayoutMusic;
+    private TextView mTvMusicName;
+    private TextView mTvSinger;
+    private ImageView mIvPlayStatus;
     private int mCurrentType = ChannelMusicFactory.CHANNEL_KUGOU;
     private Map<Integer, Fragment> mFragmentMap = new HashMap<>();
 
@@ -65,6 +77,57 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
+        MusicManager.getInstance().addPlayerEventListener(new OnPlayerEventListener() {
+            @Override
+            public void onMusicSwitch(SongInfo songInfo) {
+                mTvMusicName.setText(songInfo.getSongName());
+                mTvSinger.setText(songInfo.getAlbumName());
+            }
+
+            @Override
+            public void onPlayerStart() {
+                mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_pause);
+                SongInfo songInfo = MusicManager.getInstance().getNowPlayingSongInfo();
+                mTvMusicName.setText(songInfo.getSongName());
+                mTvSinger.setText(TextUtils.isEmpty(songInfo.getArtist()) ? "未知歌手" : songInfo.getArtist());
+            }
+
+            @Override
+            public void onPlayerPause() {
+                mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
+            }
+
+            @Override
+            public void onPlayerStop() {
+                mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
+            }
+
+            @Override
+            public void onPlayCompletion(SongInfo songInfo) {
+                mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
+            }
+
+            @Override
+            public void onBuffering() {
+
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMsg) {
+                ToastUtil.show("errorCode : " + errorCode + ", errMsg : " + errorMsg);
+            }
+        });
+
+        mIvPlayStatus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (MusicManager.getInstance().isPlaying()) {
+                    MusicManager.getInstance().pauseMusic();
+                } else if(MusicManager.getInstance().getNowPlayingSongInfo() != null){
+                    MusicManager.getInstance().playMusic();
+                }
+            }
+        });
     }
 
     private void initValues() {
@@ -76,7 +139,7 @@ public class MainActivity extends BaseActivity {
 
     private void initRv() {
         mRvChannel.setLayoutManager(new LinearLayoutManager(this));
-        mRvChannel.addItemDecoration(new CommonLinearDecoration().setColor(getResources().getColor(R.color.light_gray)));
+        mRvChannel.addItemDecoration(new MyDecoration());
         mAdapter.setNewData(getAdapterDatas());
         mRvChannel.setAdapter(mAdapter);
     }
@@ -84,6 +147,10 @@ public class MainActivity extends BaseActivity {
     private void initViews() {
         mDrawerLayout = findViewById(R.id.draw_layout);
         mRvChannel = findViewById(R.id.rv_channel);
+        mLayoutMusic = findViewById(R.id.layout_music);
+        mTvMusicName = findViewById(R.id.tv_musice_name);
+        mTvSinger = findViewById(R.id.tv_music_singer);
+        mIvPlayStatus = findViewById(R.id.iv_play_status);
     }
 
     private List<MultiItemEntity> getAdapterDatas() {
@@ -119,6 +186,21 @@ public class MainActivity extends BaseActivity {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.layout_content, fragment);
         transaction.commit();
+    }
+
+    private class MyDecoration extends RecyclerView.ItemDecoration {
+        @Override
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+            super.getItemOffsets(outRect, view, parent, state);
+            int position = parent.getChildAdapterPosition(view);
+            if (position < 0) {
+                return;
+            }
+            MultiItemEntity entity = mAdapter.getItem(position);
+            if (entity instanceof ChannelMenuItem) {
+                outRect.top = ScreenUtils.dip2px(MainActivity.this, 2);
+            }
+        }
     }
 
 

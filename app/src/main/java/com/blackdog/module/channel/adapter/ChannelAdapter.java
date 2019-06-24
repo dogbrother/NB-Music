@@ -23,12 +23,6 @@ public class ChannelAdapter extends BaseQuickAdapter<Song, BaseViewHolder> {
         setTvContent(helper, item.getSongName(), "未知歌曲", "", R.id.tv_name);
         setTvContent(helper, item.getSinger(), "未知歌手", "歌手：", R.id.tv_single);
         helper.setText(R.id.tv_duration, String.format("时长:%s", TimeUtil.getSongDuration((int) item.getDuration())));
-        SongInfo songInfo = MusicManager.getInstance().getNowPlayingSongInfo();
-        helper.setVisible(R.id.iv_playing, false);
-        if (songInfo != null && songInfo.getDownloadUrl().equals(item.getDownloadUrl())) {
-            helper.setVisible(R.id.iv_playing, true);
-
-        }
     }
 
     private void setTvContent(BaseViewHolder helper, String value, String defaultName, String prefix, int id) {

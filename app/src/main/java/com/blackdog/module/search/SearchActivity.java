@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,6 +40,7 @@ public class SearchActivity extends BaseActivity {
     private AppCompatEditText mEtSearch;
     private TextView mTitle;
     private TextView mTvSearch;
+    private ImageView mIvBack;
     private RecyclerView mRvSearch;
 
     private ChannelAdapter mAdapter;
@@ -95,6 +97,12 @@ public class SearchActivity extends BaseActivity {
                 request(mSearchText);
             }
         }, mRvSearch);
+        mIvBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void initValues() {
@@ -114,6 +122,7 @@ public class SearchActivity extends BaseActivity {
         mTitle.setText("搜索歌曲");
         mRvSearch = findViewById(R.id.rv_search);
         mRvSearch.setLayoutManager(new LinearLayoutManager(this));
+        mIvBack = findViewById(R.id.iv_back);
     }
 
     public static void actionStart(Context context, @ChannelMusicFactory.Channel int type) {
