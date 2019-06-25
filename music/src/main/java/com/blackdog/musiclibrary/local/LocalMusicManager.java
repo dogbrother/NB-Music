@@ -37,7 +37,11 @@ public class LocalMusicManager {
             return;
         }
         Song saveSong = SqlCenter.getInstance().getSongDao().queryBuilder()
-                .where(SongDao.Properties.DownloadUrl.eq(song.getDownloadUrl())).build().unique();
+                .where(SongDao.Properties.SongName.eq(song.getSongName()))
+                .where(SongDao.Properties.Singer.eq(song.getSinger()))
+                .where(SongDao.Properties.Size.eq(song.getSize()))
+                .where(SongDao.Properties.Duration.eq(song.getDownloadUrl()))
+                .build().unique();
         if (saveSong != null) {
             song.setId(saveSong.getId());
             SqlCenter.getInstance().getSongDao().update(song);

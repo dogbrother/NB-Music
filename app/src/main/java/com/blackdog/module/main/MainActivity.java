@@ -14,6 +14,9 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -42,20 +45,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.animation.ValueAnimator.RESTART;
+
 public class MainActivity extends BaseActivity {
     private final static String TAG = "MainActivity";
     private DrawerLayout mDrawerLayout;
     private RecyclerView mRvChannel;
     private ChannelMenuAdapter mAdapter;
-    private FrameLayout mLayoutMusic;
     private TextView mTvMusicName;
     private TextView mTvSinger;
     private ImageView mIvPlayStatus;
     private int mCurrentType = ChannelMusicFactory.CHANNEL_KUGOU;
     private Map<Integer, Fragment> mFragmentMap = new HashMap<>();
 
-    @Override
+    private Animation mMusicIconAnimation;
+    private FrameLayout mLayoutMusic;
+    private boolean mMusicIconRotaing;
 
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -80,8 +87,11 @@ public class MainActivity extends BaseActivity {
         MusicManager.getInstance().addPlayerEventListener(new OnPlayerEventListener() {
             @Override
             public void onMusicSwitch(SongInfo songInfo) {
+                mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_pause);
                 mTvMusicName.setText(songInfo.getSongName());
-                mTvSinger.setText(songInfo.getAlbumName());
+                mTvSinger.setText(TextUtils.isEmpty(songInfo.getArtist()) ? "未知歌手" : songInfo.getArtist());
+                mLayoutMusic.startAnimation(mMusicIconAnimation);
+                mMusicIconRotaing = true;
             }
 
             @Override
@@ -90,21 +100,29 @@ public class MainActivity extends BaseActivity {
                 SongInfo songInfo = MusicManager.getInstance().getNowPlayingSongInfo();
                 mTvMusicName.setText(songInfo.getSongName());
                 mTvSinger.setText(TextUtils.isEmpty(songInfo.getArtist()) ? "未知歌手" : songInfo.getArtist());
+                mLayoutMusic.startAnimation(mMusicIconAnimation);
+                mMusicIconRotaing = true;
             }
 
             @Override
             public void onPlayerPause() {
                 mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
+                mLayoutMusic.clearAnimation();
+                mMusicIconRotaing = false;
             }
 
             @Override
             public void onPlayerStop() {
                 mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
+                mLayoutMusic.clearAnimation();
+                mMusicIconRotaing = false;
             }
 
             @Override
             public void onPlayCompletion(SongInfo songInfo) {
                 mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
+                mLayoutMusic.clearAnimation();
+                mMusicIconRotaing = false;
             }
 
             @Override
@@ -115,6 +133,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onError(int errorCode, String errorMsg) {
                 ToastUtil.show("errorCode : " + errorCode + ", errMsg : " + errorMsg);
+                mLayoutMusic.clearAnimation();
             }
         });
 
@@ -123,7 +142,7 @@ public class MainActivity extends BaseActivity {
             public void onClick(View v) {
                 if (MusicManager.getInstance().isPlaying()) {
                     MusicManager.getInstance().pauseMusic();
-                } else if(MusicManager.getInstance().getNowPlayingSongInfo() != null){
+                } else if (MusicManager.getInstance().getNowPlayingSongInfo() != null) {
                     MusicManager.getInstance().playMusic();
                 }
             }
@@ -135,6 +154,12 @@ public class MainActivity extends BaseActivity {
         mAdapter.setEnableLoadMore(false);
         mCurrentType = -1;
         switchFragment(ChannelMusicFactory.CHANNEL_KUGOU);
+
+        mMusicIconAnimation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        mMusicIconAnimation.setFillAfter(true); // 设置保持动画最后的状态
+        mMusicIconAnimation.setDuration(4000); // 设置动画时间
+        mMusicIconAnimation.setRepeatMode(RESTART);
+        mMusicIconAnimation.setRepeatCount(-1);
     }
 
     private void initRv() {
@@ -147,10 +172,10 @@ public class MainActivity extends BaseActivity {
     private void initViews() {
         mDrawerLayout = findViewById(R.id.draw_layout);
         mRvChannel = findViewById(R.id.rv_channel);
-        mLayoutMusic = findViewById(R.id.layout_music);
         mTvMusicName = findViewById(R.id.tv_musice_name);
         mTvSinger = findViewById(R.id.tv_music_singer);
         mIvPlayStatus = findViewById(R.id.iv_play_status);
+        mLayoutMusic = findViewById(R.id.layout_music);
     }
 
     private List<MultiItemEntity> getAdapterDatas() {
@@ -203,5 +228,20 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mMusicIconRotaing) {
+            mMusicIconAnimation.reset();
+            mMusicIconAnimation.start();
+        }
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mMusicIconRotaing) {
+            mMusicIconAnimation.cancel();
+        }
+    }
 }

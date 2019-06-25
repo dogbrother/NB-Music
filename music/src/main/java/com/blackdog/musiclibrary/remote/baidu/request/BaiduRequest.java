@@ -103,4 +103,9 @@ public class BaiduRequest extends BaseRequest {
                 })
                 .subscribe();
     }
+
+    @Override
+    public void searchDetail(Song song, RequestCallBack callBack) {
+
+    }
 }

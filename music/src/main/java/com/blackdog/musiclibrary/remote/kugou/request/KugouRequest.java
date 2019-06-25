@@ -45,10 +45,11 @@ public class KugouRequest extends BaseRequest {
                                 KugouSong song = new KugouSong();
                                 song.setHash(getHash(songJson));
                                 song.setSongName(songJson.optString("SongName"));
+                                song.setSinger(songJson.optString("SingerName"));
+                                song.setDuration(songJson.optInt("Duration"));
+                                song.setSize(songJson.optLong("FileSize") + "");
                                 try {
-                                    if (requestSongDetail(song)) {
-                                        songs.add(song);
-                                    }
+                                    songs.add(song);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -74,29 +75,60 @@ public class KugouRequest extends BaseRequest {
                 }).subscribe();
     }
 
-    private boolean requestSongDetail(KugouSong song) throws Exception {
-        KugouRequestInterface kugouRequestInterface = RETROFIT.create(KugouRequestInterface.class);
+    @Override
+    public void searchDetail(final Song song, final RequestCallBack callBack) {
+        final KugouSong kugouSong;
+        if (!(song instanceof KugouSong)) {
+            if (callBack != null) {
+                callBack.onError("song convert error");
+            }
+            return;
+        }
+        kugouSong = (KugouSong) song;
+        try {
+            KugouRequestInterface kugouRequestInterface = RETROFIT.create(KugouRequestInterface.class);
 
-        Call<ResponseBody> call = kugouRequestInterface.queryMusicDetail(song.getHash());
-        Response<ResponseBody> detialReponse = call.execute();
-        if (!detialReponse.isSuccessful()) {
-            return false;
+            Observable<ResponseBody> observable = kugouRequestInterface.queryMusicDetail(kugouSong.getHash());
+            observable.subscribeOn(Schedulers.io())
+                    .map(new Function<ResponseBody, KugouSong>() {
+                        @Override
+                        public KugouSong apply(ResponseBody responseBody) throws Exception {
+                            JSONObject reponseJson = new JSONObject(responseBody.string());
+                            if (reponseJson.optInt("status") == 1) {
+                                kugouSong.setDownloadUrl(reponseJson.optString("url"))
+                                        .setChannelName("酷狗")
+                                        .setSize(reponseJson.optLong("fileSize") + "");
+                            }
+
+                            return kugouSong;
+                        }
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError(new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if (callBack != null) {
+                                callBack.onError(throwable.getMessage());
+                            }
+                        }
+                    })
+                    .doOnNext(new Consumer<KugouSong>() {
+                        @Override
+                        public void accept(KugouSong kugouSong) throws Exception {
+                            if (callBack != null) {
+                                List list = new ArrayList();
+                                list.add(kugouSong);
+                                callBack.onSucc(list);
+                            }
+                        }
+                    })
+                    .subscribe();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        ResponseBody detailResultBody = detialReponse.body();
-        String detailResult = detailResultBody.string();
-        if (TextUtils.isEmpty(detailResult)) {
-            return false;
-        }
-        JSONObject reponseJson = new JSONObject(detailResult);
-        if (reponseJson.optInt("status") != 1) {
-            return false;
-        }
-        song.setDownloadUrl(reponseJson.optString("url"))
-                .setChannelName("酷狗")
-                .setSize(reponseJson.optLong("fileSize") + "")
-                .setDuration(reponseJson.optInt("timeLength"))
-                .setSinger(reponseJson.optString("singerName"));
-        return true;
+
     }
 
 

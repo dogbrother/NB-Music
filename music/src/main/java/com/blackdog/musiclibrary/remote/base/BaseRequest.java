@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.blackdog.musiclibrary.model.RequestCallBack;
+import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.util.NetWorkUtil;
 
 import retrofit2.Retrofit;
@@ -29,5 +30,7 @@ public abstract class BaseRequest {
     }
 
     protected abstract void searchInternal(int page, int count, String name, RequestCallBack callBack);
+
+    public abstract void searchDetail(Song song, RequestCallBack callBack);
 
 }

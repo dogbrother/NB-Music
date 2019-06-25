@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.lzx.musiclib"
+        applicationId "com.blackdog.nbmusic"
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1

@@ -46,7 +46,7 @@ public class SearchActivity extends BaseActivity {
     private ChannelAdapter mAdapter;
     ProgressDialog mProgressDialog;
     private int mType;
-    private int mPage = 0;
+    private int mPage = 1;
     private String mSearchText;
 
     @Override
@@ -77,7 +77,7 @@ public class SearchActivity extends BaseActivity {
                     ToastUtil.show("type error");
                     return;
                 }
-                mPage = 0;
+                mPage = 1;
                 mSearchText = mEtSearch.getText().toString();
                 request(mSearchText);
             }
@@ -86,9 +86,19 @@ public class SearchActivity extends BaseActivity {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 Song song = (Song) adapter.getData().get(position);
-                LocalMusicManager.getInstance().save(song);
-                MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
-                mAdapter.notifyDataSetChanged();
+                ChannelMusicFactory.getRequest(mType)
+                        .searchDetail(song, new RequestCallBack() {
+                            @Override
+                            public void onSucc(List<Song> music) {
+                                LocalMusicManager.getInstance().save(song);
+                                MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
+                            }
+
+                            @Override
+                            public void onError(String response) {
+                                ToastUtil.show("获取音乐详细信息失败，response : " + response);
+                            }
+                        });
             }
         });
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
@@ -110,7 +120,7 @@ public class SearchActivity extends BaseActivity {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage("搜索中");
         mAdapter = new ChannelAdapter(new ArrayList<>());
-        mAdapter.setPreLoadNumber(REQUEST_COUNT);
+        mAdapter.setEnableLoadMore(true);
         mType = getIntent().getIntExtra(KEY_INTENT_TYPE, -1);
         Log.i(TAG, "type : " + mType);
     }
@@ -137,13 +147,14 @@ public class SearchActivity extends BaseActivity {
                     @Override
                     public void onSucc(List<Song> music) {
                         mProgressDialog.dismiss();
-                        if (mPage == 0) {
+                        if (mPage == 1) {
                             mAdapter.setNewData(music);
                         } else {
                             mAdapter.addData(music);
+                            mAdapter.loadMoreComplete();
                         }
                         if (music.size() < REQUEST_COUNT) {
-                            mAdapter.loadMoreComplete();
+                            mAdapter.loadMoreEnd();
                         }
                         mPage++;
                     }

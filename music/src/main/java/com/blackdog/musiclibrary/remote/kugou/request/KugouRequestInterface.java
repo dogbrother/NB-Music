@@ -19,5 +19,5 @@ public interface KugouRequestInterface {
 
     @GET(URL_DETAIL)
     @Headers({"referer:http://m.kugou.com", "User-Agent:" + FakeHeader.IOS_USERAGENT})
-    Call<ResponseBody> queryMusicDetail(@Query("hash") String hash);
+    Observable<ResponseBody> queryMusicDetail(@Query("hash") String hash);
 }
