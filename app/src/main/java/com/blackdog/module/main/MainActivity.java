@@ -3,6 +3,7 @@ package com.blackdog.module.main;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,15 +13,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.blackdog.R;
@@ -36,6 +37,7 @@ import com.blackdog.util.ScreenUtils;
 import com.blackdog.util.ToastUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
+import com.lzx.starrysky.manager.MediaSessionConnection;
 import com.lzx.starrysky.manager.MusicManager;
 import com.lzx.starrysky.manager.OnPlayerEventListener;
 import com.lzx.starrysky.model.SongInfo;
@@ -61,6 +63,7 @@ public class MainActivity extends BaseActivity {
     private Animation mMusicIconAnimation;
     private FrameLayout mLayoutMusic;
     private boolean mMusicIconRotaing;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,6 +73,8 @@ public class MainActivity extends BaseActivity {
         initValues();
         addListeners();
         initRv();
+        MediaSessionConnection.getInstance().connect();
+        new ProgressThread(mProgressBar).start();
     }
 
     private void addListeners() {
@@ -87,21 +92,19 @@ public class MainActivity extends BaseActivity {
         MusicManager.getInstance().addPlayerEventListener(new OnPlayerEventListener() {
             @Override
             public void onMusicSwitch(SongInfo songInfo) {
-                mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_pause);
-                mTvMusicName.setText(songInfo.getSongName());
-                mTvSinger.setText(TextUtils.isEmpty(songInfo.getArtist()) ? "未知歌手" : songInfo.getArtist());
-                mLayoutMusic.startAnimation(mMusicIconAnimation);
-                mMusicIconRotaing = true;
+                Log.i(TAG, "onMusicSwitch");
             }
 
             @Override
             public void onPlayerStart() {
+                mProgressBar.setProgress(0);
                 mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_pause);
                 SongInfo songInfo = MusicManager.getInstance().getNowPlayingSongInfo();
                 mTvMusicName.setText(songInfo.getSongName());
                 mTvSinger.setText(TextUtils.isEmpty(songInfo.getArtist()) ? "未知歌手" : songInfo.getArtist());
                 mLayoutMusic.startAnimation(mMusicIconAnimation);
                 mMusicIconRotaing = true;
+                Log.i(TAG, "onPlayerStart");
             }
 
             @Override
@@ -109,6 +112,7 @@ public class MainActivity extends BaseActivity {
                 mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
                 mLayoutMusic.clearAnimation();
                 mMusicIconRotaing = false;
+                Log.i(TAG, "onPlayerPause");
             }
 
             @Override
@@ -116,6 +120,8 @@ public class MainActivity extends BaseActivity {
                 mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
                 mLayoutMusic.clearAnimation();
                 mMusicIconRotaing = false;
+                Log.i(TAG, "onPlayerStop");
+                mProgressBar.setProgress(0);
             }
 
             @Override
@@ -123,17 +129,20 @@ public class MainActivity extends BaseActivity {
                 mIvPlayStatus.setImageResource(R.drawable.ic_action_playback_play);
                 mLayoutMusic.clearAnimation();
                 mMusicIconRotaing = false;
+                Log.i(TAG, "onPlayCompletion");
+                mProgressBar.setProgress(0);
             }
 
             @Override
             public void onBuffering() {
-
+                Log.i(TAG, "onBuffering");
             }
 
             @Override
             public void onError(int errorCode, String errorMsg) {
                 ToastUtil.show("errorCode : " + errorCode + ", errMsg : " + errorMsg);
                 mLayoutMusic.clearAnimation();
+                Log.i(TAG, "onError");
             }
         });
 
@@ -176,6 +185,7 @@ public class MainActivity extends BaseActivity {
         mTvSinger = findViewById(R.id.tv_music_singer);
         mIvPlayStatus = findViewById(R.id.iv_play_status);
         mLayoutMusic = findViewById(R.id.layout_music);
+        mProgressBar = findViewById(R.id.progress_main);
     }
 
     private List<MultiItemEntity> getAdapterDatas() {
@@ -244,4 +254,48 @@ public class MainActivity extends BaseActivity {
             mMusicIconAnimation.cancel();
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MusicManager.getInstance().onRelease();
+        MediaSessionConnection.getInstance().disconnect();
+    }
+
+    private static class ProgressThread extends Thread {
+        private ProgressBar mProgress;
+
+        public ProgressThread(ProgressBar progress) {
+            this.mProgress = progress;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            while (true) {
+                try {
+                    sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                SongInfo songInfo = MusicManager.getInstance().getNowPlayingSongInfo();
+                if (songInfo != null) {
+                    long allDuration = songInfo.getDuration();
+                    if (allDuration == 0) {
+                        continue;
+                    }
+                    long currentDuration = MusicManager.getInstance().getPlayingPosition() / 1000L;
+                    final int progress = (int) (currentDuration * 100 / allDuration);
+                    mProgress.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mProgress.setProgress(progress);
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+
 }

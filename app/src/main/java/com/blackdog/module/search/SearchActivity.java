@@ -25,6 +25,7 @@ import com.blackdog.util.SongUtil;
 import com.blackdog.util.ToastUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.lzx.starrysky.manager.MusicManager;
+import com.lzx.starrysky.model.MusicProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,7 @@ public class SearchActivity extends BaseActivity {
                             @Override
                             public void onSucc(List<Song> music) {
                                 LocalMusicManager.getInstance().save(song);
+                                MusicProvider.getInstance().addSongInfo(SongUtil.transformSong(song));
                                 MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
                             }
 

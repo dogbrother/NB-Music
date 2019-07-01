@@ -95,8 +95,7 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
         mAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                Song song = (Song) adapter.getData().get(position);
-                MusicManager.getInstance().playMusicByInfo(SongUtil.transformSong(song));
+                MusicManager.getInstance().playMusic(SongUtil.transforSong(mAdapter.getData()), position);
             }
         });
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
@@ -117,6 +116,9 @@ public class ChannelFragment extends BaseFragment implements ChannelContact.View
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 LocalMusicManager.getInstance().removeMusic(song);
+                                if (MusicManager.getInstance().getNowPlayingSongInfo().getSongId().equals(song.getId() + "")) {
+                                    MusicManager.getInstance().skipToNext();
+                                }
                                 dialog.dismiss();
                             }
                         })

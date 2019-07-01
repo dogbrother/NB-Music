@@ -16,10 +16,15 @@ public class Song {
     private String size;
     private long duration;
     private String channelName;
+    //酷狗是根据Hash来下载歌曲的
+    private String kugouHash;
+    private String baiduSongId;
 
-    @Generated(hash = 1934683397)
+
+    @Generated(hash = 554105439)
     public Song(Long id, String songName, String singer, String downloadUrl,
-                String size, long duration, String channelName) {
+            String size, long duration, String channelName, String kugouHash,
+            String baiduSongId) {
         this.id = id;
         this.songName = songName;
         this.singer = singer;
@@ -27,11 +32,14 @@ public class Song {
         this.size = size;
         this.duration = duration;
         this.channelName = channelName;
+        this.kugouHash = kugouHash;
+        this.baiduSongId = baiduSongId;
     }
 
     @Generated(hash = 87031450)
     public Song() {
     }
+    
 
     public String getChannelName() {
         return channelName;
@@ -100,5 +108,21 @@ public class Song {
         return this;
     }
 
+    public String getKugouHash() {
+        return kugouHash;
+    }
 
+    public Song setKugouHash(String kugouHash) {
+        this.kugouHash = kugouHash;
+        return this;
+    }
+
+    public String getBaiduSongId() {
+        return baiduSongId;
+    }
+
+    public Song setBaiduSongId(String baiduSongId) {
+        this.baiduSongId = baiduSongId;
+        return this;
+    }
 }

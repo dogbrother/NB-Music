@@ -1,6 +1,5 @@
 package com.blackdog.musiclibrary.remote.baidu.request;
 
-import com.blackdog.musiclibrary.remote.baidu.model.BaiduSong;
 
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
@@ -19,7 +18,7 @@ public interface BaiduRequestInterface {
 
     @GET(URL_DETAIL)
     @Headers({"referer:http://music.baidu.com/song"})
-    Call<ResponseBody> queryMusicDetail(@Query("songIds") String songId);
+    Observable<ResponseBody> queryMusicDetail(@Query("songIds") String songId);
 
 
 }

@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.blackdog.musiclibrary.model.RequestCallBack;
 import com.blackdog.musiclibrary.model.Song;
 import com.blackdog.musiclibrary.remote.base.BaseRequest;
-import com.blackdog.musiclibrary.remote.kugou.model.KugouSong;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,8 +19,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Response;
 
 public class KugouRequest extends BaseRequest {
 
@@ -42,8 +39,8 @@ public class KugouRequest extends BaseRequest {
                         if (songList != null) {
                             for (int i = 0; i < songList.length(); i++) {
                                 JSONObject songJson = songList.optJSONObject(i);
-                                KugouSong song = new KugouSong();
-                                song.setHash(getHash(songJson));
+                                Song song = new Song();
+                                song.setKugouHash(getHash(songJson));
                                 song.setSongName(songJson.optString("SongName"));
                                 song.setSinger(songJson.optString("SingerName"));
                                 song.setDuration(songJson.optInt("Duration"));
@@ -77,30 +74,22 @@ public class KugouRequest extends BaseRequest {
 
     @Override
     public void searchDetail(final Song song, final RequestCallBack callBack) {
-        final KugouSong kugouSong;
-        if (!(song instanceof KugouSong)) {
-            if (callBack != null) {
-                callBack.onError("song convert error");
-            }
-            return;
-        }
-        kugouSong = (KugouSong) song;
         try {
             KugouRequestInterface kugouRequestInterface = RETROFIT.create(KugouRequestInterface.class);
 
-            Observable<ResponseBody> observable = kugouRequestInterface.queryMusicDetail(kugouSong.getHash());
+            Observable<ResponseBody> observable = kugouRequestInterface.queryMusicDetail(song.getKugouHash());
             observable.subscribeOn(Schedulers.io())
-                    .map(new Function<ResponseBody, KugouSong>() {
+                    .map(new Function<ResponseBody, Song>() {
                         @Override
-                        public KugouSong apply(ResponseBody responseBody) throws Exception {
+                        public Song apply(ResponseBody responseBody) throws Exception {
                             JSONObject reponseJson = new JSONObject(responseBody.string());
                             if (reponseJson.optInt("status") == 1) {
-                                kugouSong.setDownloadUrl(reponseJson.optString("url"))
+                                song.setDownloadUrl(reponseJson.optString("url"))
                                         .setChannelName("酷狗")
                                         .setSize(reponseJson.optLong("fileSize") + "");
                             }
 
-                            return kugouSong;
+                            return song;
                         }
                     })
                     .observeOn(AndroidSchedulers.mainThread())
@@ -112,9 +101,9 @@ public class KugouRequest extends BaseRequest {
                             }
                         }
                     })
-                    .doOnNext(new Consumer<KugouSong>() {
+                    .doOnNext(new Consumer<Song>() {
                         @Override
-                        public void accept(KugouSong kugouSong) throws Exception {
+                        public void accept(Song kugouSong) throws Exception {
                             if (callBack != null) {
                                 List list = new ArrayList();
                                 list.add(kugouSong);

@@ -40,7 +40,7 @@ public class LocalMusicManager {
                 .where(SongDao.Properties.SongName.eq(song.getSongName()))
                 .where(SongDao.Properties.Singer.eq(song.getSinger()))
                 .where(SongDao.Properties.Size.eq(song.getSize()))
-                .where(SongDao.Properties.Duration.eq(song.getDownloadUrl()))
+                .where(SongDao.Properties.Duration.eq(song.getDuration()))
                 .build().unique();
         if (saveSong != null) {
             song.setId(saveSong.getId());
